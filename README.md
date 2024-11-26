@@ -1,24 +1,22 @@
-# Next.js Three.js Tailwind Template
+# CSSBattle
 
-A modern, full-featured template for rapidly building web applications. Pre-configured with TypeScript, Three.js, Tailwind CSS, and more to eliminate boilerplate setup and get coding faster.
+A full-featured web app for recreating CSS battles. Allowing users to test their Web Dev skills by replicating target designs using HTML/ CSS, providing real-time previews, scoring based on accuracy and code efficiency, and interactive comparison tools.  <br>
 
-![image](https://github.com/user-attachments/assets/44ed6c39-7c06-429f-a7d5-30ff9ae525e9)
+![CSSBattle App](https://github.com/user-attachments/assets/058d479e-1781-442d-b05d-023c1d51f7dd)
 
 ## Core Technologies
 
-- Next.js 15.0.3 (App Router)
-- TypeScript 5
-- Three.js 0.170.0 + React Three Fiber 8
-- Tailwind CSS 3.4.1
-- Framer Motion 11
-
-![image](https://github.com/user-attachments/assets/4e86010d-f88a-4e43-a388-ec54746f8fd0)
+- **Next.js 15.0.3 (App Router)**
+- **TypeScript 5**
+- **Tailwind CSS 3.4.1**
+- **Framer Motion 11**
+- **Monaco Editor** for an enhanced coding experience
 
 ## Setup
 
 ```bash
-git clone https://github.com/JayRichh/next-template
-cd next-template
+git clone https://github.com/JayRichh/cssbattle
+cd cssbattle
 npm install
 npm run dev
 ```
@@ -27,76 +25,123 @@ npm run dev
 
 ```
 src/
-├── app/                    # Next.js app directory
-│   ├── examples/          # Example implementations
-│   │   ├── 3d/           # Three.js examples
-│   │   ├── ui/           # UI component examples
-│   │   └── theme/        # Theme examples
-│   ├── three/            # Three.js setup
-│   └── api/              # API routes
-├── components/
-│   └── ui/               # Reusable UI components
-├── hooks/                # Custom React hooks
-├── services/             # API services
-├── types/                # TypeScript definitions
-└── utils/               # Utility functions
-```
+├── app/                    
+│   ├── page.tsx                 # Home page component
+│   ├── globals.css              # Global styles using Tailwind CSS
+│   ├── challenges/
+│   │   ├── index.tsx            # Challenges list page
+│   │   └── [id]/
+│   │       ├── page.tsx         # Individual challenge page
+│   │       └── data.ts          # Challenge data (HTML, CSS, metadata)
+│   ├── components/
+│   │   ├── Editor/
+│   │   │   ├── Editor.tsx           # Monaco Editor component
+│   │   │   └── EditorHelpers.tsx    # Helper components for the editor
+│   │   ├── Preview/
+│   │   │   ├── PreviewPane.tsx      # User's live preview pane
+│   │   │   ├── TargetPane.tsx       # Challenge target display
+│   │   │   ├── ComparisonSlider.tsx # Slider for comparing outputs
+│   │   │   └── ToggleDifference.tsx # Toggle to highlight differences
+│   │   ├── UI/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── Tooltip.tsx
+│   │   │   └── ...                 # Other reusable UI components
+│   │   ├── Header.tsx               # Application header
+│   │   ├── Footer.tsx               # Application footer
+│   │   └── ScoreDisplay.tsx         # Displays scoring results
+│   ├── hooks/
+│   │   ├── useLocalStorage.ts       # Custom hook for local storage management
+│   │   ├── useImageComparison.ts    # Custom hook for image comparison logic
+│   │   ├── useDebounce.ts           # Custom hook for debouncing
+│   │   └── useHelpers.ts            # Custom hooks for HTML/CSS helpers
+│   ├── utils/
+│   │   ├── colorUtils.ts            # Utility functions for color handling
+│   │   ├── imageUtils.ts            # Functions for canvas and image processing
+│   │   ├── scoringUtils.ts          # Scoring algorithms and utilities
+│   │   ├── htmlCssHelpers.ts        # Helper functions for generating HTML/CSS
+│   │   └── constants.ts             # Application constants
+│   └── types/
+│       ├── challenge.d.ts           # Type definitions for challenges
+│       ├── submission.d.ts          # Type definitions for user submissions
+│       └── index.d.ts               # General type definitions
+├── public/
+│   └── assets/
+│       ├── images/                  # Static images for challenges and UI
+│       └── icons/                   # Icons for UI components
+├── package.json                     # Project dependencies and scripts
+├── tsconfig.json                    # TypeScript configuration
+└── tailwind.config.js               # Tailwind CSS configuration
 
-![image](https://github.com/user-attachments/assets/3acd0a7e-3415-4b07-a16d-e8522874879a)
+```
 
 ## Features
 
 ### UI Components
 
-- Form elements with validation (react-hook-form + zod)
-- Data display (Badge, Card, Tooltip)
-- Layout (Accordion, Modal, Tabs)
-- Feedback (Progress, Spinner, Toast)
-- Effects (Gradient backgrounds, animations)
+- **Form Elements with Validation:** Utilizes `react-hook-form` and `zod` for robust form handling and validation.
+- **Data Display:** Includes badges, cards, and tooltips for presenting information effectively.
+- **Layout Components:** Features accordions, modals, and tabs for organized content presentation.
+- **Feedback Mechanisms:** Implements progress bars, spinners, and toast notifications for user feedback.
+- **Visual Effects:** Enhances the UI with gradient backgrounds and smooth animations.
 
-### Three.js Integration
+### Code Editor Integration
 
-- Scene management with React Three Fiber
-- Physics integration (Rapier3D)
-- Material showcases
-- Interactive examples
-- Morph animations
+- **Monaco Editor:** Provides a powerful code editing experience with syntax highlighting, autocomplete, and real-time error detection.
+- **Custom Snippets:** Offers predefined CSS snippets to assist users in writing code efficiently.
+- **Live Syntax Validation:** Highlights syntax errors and provides immediate feedback to users.
 
-### Development Tools
+### Live Preview and Comparison Tools
 
-- TypeScript configuration
-- ESLint with strict rules
-- Prettier with import sorting
-- Hot module replacement
-- Monaco code editor integration
+- **Live Preview Pane:** Renders user-submitted CSS in real-time for instant visual feedback.
+- **Target Display Pane:** Shows the design that users aim to replicate.
+- **Comparison Slider:** Enables users to slide between their output and the target to visually identify differences.
+- **Toggle Difference Highlighting:** Highlights pixel-level differences to help users pinpoint areas for improvement.
 
-![image](https://github.com/user-attachments/assets/eb1375a2-0654-4c88-bcfd-2460cdb01e56)
+### Scoring System
+
+- **Accuracy Calculation:** Compares the user's output with the target using image comparison algorithms to determine pixel-perfect accuracy.
+- **Code Efficiency Scoring:** Rewards users for writing concise and optimized CSS code.
+- **Final Score Composition:** Combines accuracy and efficiency scores to provide a comprehensive final score.
+- **Feedback Messages:** Offers constructive feedback based on the user's performance to encourage improvement.
+
+### Helper Tools for HTML/CSS
+
+- **CSS Snippets:** Predefined snippets for common CSS properties to assist users in writing code faster.
+- **Property Reference Tooltips:** Provides information about CSS properties when hovered or selected.
+- **Color Picker Integration:** Allows users to select colors directly within the editor.
+- **Live Syntax Validation:** Highlights syntax errors and provides real-time feedback.
+
+### Responsive and Accessible Design
+
+- **Tailwind CSS:** Ensures a consistent and responsive layout across different devices and screen sizes.
+- **Accessibility Features:** Keyboard navigable components, appropriate ARIA labels, and screen-reader friendly elements.
+
+### Data Persistence and State Management
+
+- **Local Storage Integration:** Persists user submissions and progress using `localStorage`.
+- **Custom React Hooks:** Manages state and side effects efficiently with custom hooks like `useLocalStorage`, `useImageComparison`, and `useDebounce`.
 
 ## Configuration
 
 ### Next.js
 
-- Configured for Three.js integration
-- App Router setup
-- API routes enabled
-- Strict mode enabled
-- Webpack optimizations for canvas
+- **App Router Setup:** Utilizes Next.js 15's App Router for improved routing and layout management.
+- **Strict Mode Enabled:** Enforces strict mode for better error handling and performance.
+- **Webpack Optimizations:** Optimized for efficient bundling and canvas performance.
 
 ### Tailwind CSS
 
-- Custom color schemes with HSL variables
-- Dark mode support
-- Geist font integration
-- Custom animations
-- Gradient utilities
-- Container queries
+- **Custom Color Schemes:** Defined using HSL variables for flexibility and consistency.
+- **Dark Mode Support:** Provides an optional dark theme for better user experience.
+- **Custom Animations and Gradients:** Enhances visual appeal with smooth animations and gradient backgrounds.
+- **Container Queries:** Ensures responsive design by adapting components based on container size.
 
 ### TypeScript
 
-- Strict type checking
-- Path aliases configured
-- Type definitions for Three.js
-- Custom type utilities
+- **Strict Type Checking:** Enforces type safety and reduces runtime errors.
+- **Path Aliases Configured:** Simplifies import statements with defined path aliases.
+- **Type Definitions:** Includes comprehensive type definitions for challenges, submissions, and general utilities.
 
 ## Available Scripts
 
