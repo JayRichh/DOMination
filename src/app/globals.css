@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark theme by default */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    
+    /* Primary - Electric Purple */
+    --primary: 263 90% 51%;
+    --primary-foreground: 210 40% 98%;
+    
+    /* Accent - Vibrant Cyan */
+    --accent: 199 89% 48%;
+    --accent-foreground: 210 40% 98%;
+    
+    /* Muted backgrounds */
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20% 65%;
+    
+    /* Border colors */
+    --border: 216 34% 17%;
+    
+    /* Radius */
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Gradient Animation */
+  .animate-gradient {
+    animation: gradient 8s linear infinite;
+    background-size: 200% 200%;
+  }
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Glass Effect */
+  .glass {
+    @apply bg-background/40 backdrop-blur-xl border border-border/50;
+    box-shadow: inset 0 0 0.5px 0.5px rgba(var(--foreground), 0.1);
+  }
+}
+
+@layer components {
+  /* Button Styles */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium
+           transition-colors focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-primary/50 disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+  
+  .btn-ghost {
+    @apply hover:bg-muted hover:text-foreground;
+  }
+
+  /* Navigation Link */
+  .nav-link {
+    @apply text-muted-foreground hover:text-foreground transition-colors;
+  }
+
+  /* Feature Card */
+  .feature-card {
+    @apply relative overflow-hidden rounded-xl p-6 transition-all duration-300
+           hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1;
+  }
+
+  /* Range Input Styling */
+  .input-range {
+    @apply h-2 w-full appearance-none rounded-lg bg-muted;
+  }
+
+  .input-range::-webkit-slider-thumb {
+    @apply h-4 w-4 appearance-none rounded-full bg-primary 
+           hover:bg-primary/90 cursor-pointer transition-colors
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  .input-range::-moz-range-thumb {
+    @apply h-4 w-4 appearance-none rounded-full bg-primary border-none
+           hover:bg-primary/90 cursor-pointer transition-colors
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  /* Preview Grid Pattern */
+  .preview-grid {
+    background-image: 
+      linear-gradient(to right, rgb(var(--border) / 0.2) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--border) / 0.2) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Editor Container */
+  .editor-container {
+    @apply rounded-lg border border-border overflow-hidden
+           bg-background text-foreground shadow-lg;
+  }
+
+  /* Challenge Card */
+  .challenge-card {
+    @apply relative overflow-hidden rounded-xl bg-background/40 backdrop-blur-xl
+           border border-border/50 transition-all duration-300
+           hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1;
+  }
+
+  /* Comparison Slider */
+  .comparison-slider {
+    @apply relative h-[200px] select-none touch-none rounded-lg overflow-hidden
+           border border-border bg-background;
+  }
+
+  .comparison-handle {
+    @apply absolute top-0 bottom-0 w-0.5 bg-primary cursor-ew-resize
+           transition-transform duration-75;
+  }
+
+  .comparison-handle::before,
+  .comparison-handle::after {
+    @apply absolute top-1/2 -translate-y-1/2 text-xs text-primary;
+  }
+
+  .comparison-handle::before {
+    content: "◄";
+    @apply -left-6;
+  }
+
+  .comparison-handle::after {
+    content: "►";
+    @apply -right-6;
+  }
+}
