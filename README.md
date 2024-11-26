@@ -4,22 +4,35 @@ A full-featured web app for recreating CSS battles. Allowing users to test their
 
 ![CSSBattle App](https://github.com/user-attachments/assets/058d479e-1781-442d-b05d-023c1d51f7dd)
 
-## Core Technologies
+<div style="display: flex; flex-direction: row; align-items: flex-start; gap: 20px;">
 
-- **Next.js 15.0.3 (App Router)**
-- **TypeScript 5**
-- **Tailwind CSS 3.4.1**
-- **Framer Motion 11**
-- **Monaco Editor** for an enhanced coding experience
+  <!-- Left Column: Tech and Setup -->
+  <div style="flex: 1;">
+    <h2>Core Technologies</h2>
+    <ul>
+      <li><strong>Next.js 15.0.3 (App Router)</strong></li>
+      <li><strong>TypeScript 5</strong></li>
+      <li><strong>Tailwind CSS 3.4.1</strong></li>
+      <li><strong>Framer Motion 11</strong></li>
+      <li><strong>Monaco Editor</strong> for an enhanced coding experience</li>
+    </ul>
 
-## Setup
-
-```bash
+# Setup
+```
 git clone https://github.com/JayRichh/cssbattle
 cd cssbattle
 npm install
 npm run dev
 ```
+  </div>
+
+  <!-- Right Column: Images -->
+  <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <img src="https://github.com/user-attachments/assets/85d26d56-864a-4abd-b60f-671f9f17cdc9" alt="Project Screenshot 1" style="width: 100%; border-radius: 8px;" />
+    <img src="https://github.com/user-attachments/assets/ff41498b-df9e-41fc-8817-532384bb6a31" alt="Project Screenshot 2" style="width: 100%; border-radius: 8px;" />
+  </div>
+
+</div>
 
 ## Project Structure
 
