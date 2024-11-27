@@ -19,7 +19,7 @@ A full-featured web app for recreating CSS battles. Allowing users to test their
 
 # Setup
 ```
-git clone https://github.com/JayRichh/cssbattle
+git clone https://github.com/JayRichh/DOMination
 cd cssbattle
 npm install
 npm run dev
