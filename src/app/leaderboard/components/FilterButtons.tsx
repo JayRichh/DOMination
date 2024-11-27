@@ -15,7 +15,7 @@ function FilterButton({ active, onClick, children }: FilterButtonProps) {
       className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
         active
           ? "bg-primary text-primary-foreground shadow-sm"
-          : "text-muted-foreground hover:bg-muted/80"
+          : "text-foreground hover:bg-accent hover:text-accent-foreground"
       }`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -43,9 +43,9 @@ function FilterGroup<T extends string>({
 }: FilterGroupProps<T>) {
   return (
     <div className="flex flex-col items-center gap-3">
-      <Text variant="body-sm" color="secondary" weight="medium">{label}</Text>
+      <Text variant="body-sm" className="text-foreground font-medium">{label}</Text>
       <motion.div 
-        className="inline-flex p-1 bg-muted rounded-lg"
+        className="inline-flex p-1 bg-card border border-border rounded-lg"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
@@ -85,7 +85,7 @@ export function FilterButtons({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Text variant="h4" color="secondary">Filter Rankings</Text>
+        <Text variant="h4" className="text-foreground font-semibold">Filter Rankings</Text>
         <div className="h-1 w-20 bg-primary rounded-full"/>
       </motion.div>
 

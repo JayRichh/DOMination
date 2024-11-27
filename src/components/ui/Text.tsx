@@ -1,7 +1,6 @@
 "use client";
 
 import { HTMLAttributes, forwardRef } from "react";
-
 import { cn } from "~/utils/cn";
 
 type TextVariant = "h1" | "h2" | "h3" | "h4" | "body-lg" | "body" | "body-sm" | "caption";
@@ -31,10 +30,10 @@ const variantClasses: Record<TextVariant, string> = {
 
 const colorClasses = {
   default: "text-foreground",
-  primary: "text-primary",
-  secondary: "text-muted-foreground",
-  success: "text-success",
-  error: "text-error",
+  primary: "text-primary dark:text-primary",
+  secondary: "text-muted-foreground dark:text-muted-foreground",
+  success: "text-emerald-600 dark:text-emerald-400",
+  error: "text-red-600 dark:text-red-400",
 };
 
 const weightClasses = {
@@ -52,10 +51,10 @@ const alignClasses = {
 
 const gradientClasses: Record<TextGradient, string> = {
   none: "",
-  blue: "bg-gradient-to-r from-blue-400 to-cyan-400 text-transparent bg-clip-text [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)]",
-  purple: "bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)]",
-  orange: "bg-gradient-to-r from-orange-400 to-red-400 text-transparent bg-clip-text [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)]",
-  primary: "bg-gradient-to-r from-primary/90 to-accent/90 text-transparent bg-clip-text [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)]",
+  blue: "bg-gradient-to-r from-blue-500 to-cyan-500 dark:from-blue-400 dark:to-cyan-400 text-transparent bg-clip-text",
+  purple: "bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-400 dark:to-pink-400 text-transparent bg-clip-text",
+  orange: "bg-gradient-to-r from-orange-500 to-red-500 dark:from-orange-400 dark:to-red-400 text-transparent bg-clip-text",
+  primary: "bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text",
 };
 
 export const Text = forwardRef<HTMLDivElement, TextProps>(
@@ -96,7 +95,7 @@ export const Text = forwardRef<HTMLDivElement, TextProps>(
         {...props}
       >
         {glass && (
-          <span className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-25 blur-sm" />
+          <span className="absolute inset-0 bg-gradient-to-r from-white/10 dark:from-white/5 to-transparent opacity-25 blur-sm" />
         )}
         <span className="relative">{children}</span>
       </div>

@@ -80,8 +80,8 @@ export default function LeaderboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Text variant="h1" gradient="primary" className="mb-4">Global Leaderboard</Text>
-            <Text variant="body-lg" color="secondary">Compete with the best CSS artists worldwide</Text>
+            <Text variant="h1" className="mb-4 text-foreground font-bold">Global Leaderboard</Text>
+            <Text variant="body-lg" className="text-muted-foreground">Compete with the best CSS artists worldwide</Text>
           </motion.div>
 
           <FilterButtons

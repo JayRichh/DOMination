@@ -73,7 +73,7 @@ export default function HomePage() {
               damping: 30
             }}
           >
-            <Text variant="h1" gradient="primary" className="mb-6">
+            <Text variant="h1" className="mb-6 text-foreground">
               Master CSS Through Creative Challenges
             </Text>
           </motion.div>
@@ -82,7 +82,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Text variant="body-lg" color="secondary" className="max-w-2xl mx-auto">
+            <Text variant="body-lg" className="max-w-2xl mx-auto text-foreground">
               Join thousands of developers improving their CSS skills through interactive challenges and real-time feedback.
             </Text>
           </motion.div>
@@ -108,8 +108,8 @@ export default function HomePage() {
               <div className="flex items-start space-x-4">
                 <div className="text-4xl">{feature.icon}</div>
                 <div>
-                  <Text variant="h4" className="mb-2">{feature.title}</Text>
-                  <Text variant="body" color="secondary">{feature.description}</Text>
+                  <Text variant="h4" className="mb-2 text-foreground">{feature.title}</Text>
+                  <Text variant="body" className="text-muted-foreground">{feature.description}</Text>
                 </div>
               </div>
             </motion.div>
@@ -130,7 +130,7 @@ export default function HomePage() {
           >
             <Link 
               href="/challenges" 
-              className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-shadow"
+              className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium shadow-lg hover:bg-primary/90 hover:shadow-xl transition-all"
             >
               Start Challenges
             </Link>

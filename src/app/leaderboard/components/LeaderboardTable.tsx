@@ -12,7 +12,7 @@ function TrendIndicator({ direction, change }: TrendIndicatorProps) {
   if (direction === "same") return null;
 
   const arrow = direction === "up" ? "↑" : "↓";
-  const color = direction === "up" ? "text-emerald-500" : "text-rose-500";
+  const color = direction === "up" ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400";
 
   return (
     <motion.span
@@ -37,26 +37,26 @@ export function LeaderboardTable({ users, selectedCategory }: LeaderboardTablePr
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-border bg-muted/50">
+            <tr className="border-b border-border bg-muted">
               <th className="px-6 py-4 text-left">
-                <Text variant="body-sm" weight="semibold">Rank</Text>
+                <Text variant="body-sm" weight="semibold" className="text-foreground">Rank</Text>
               </th>
               <th className="px-6 py-4 text-left">
-                <Text variant="body-sm" weight="semibold">Player</Text>
+                <Text variant="body-sm" weight="semibold" className="text-foreground">Player</Text>
               </th>
               <th className="px-6 py-4 text-right">
-                <Text variant="body-sm" weight="semibold">
+                <Text variant="body-sm" weight="semibold" className="text-foreground">
                   {categories.find(c => c.key === selectedCategory)?.label}
                 </Text>
               </th>
               <th className="px-6 py-4 text-right">
-                <Text variant="body-sm" weight="semibold">Challenges</Text>
+                <Text variant="body-sm" weight="semibold" className="text-foreground">Challenges</Text>
               </th>
               <th className="px-6 py-4 text-right">
-                <Text variant="body-sm" weight="semibold">Perfect Scores</Text>
+                <Text variant="body-sm" weight="semibold" className="text-foreground">Perfect Scores</Text>
               </th>
               <th className="px-6 py-4 text-right">
-                <Text variant="body-sm" weight="semibold">Rank</Text>
+                <Text variant="body-sm" weight="semibold" className="text-foreground">Rank</Text>
               </th>
             </tr>
           </thead>
@@ -82,8 +82,8 @@ export function LeaderboardTable({ users, selectedCategory }: LeaderboardTablePr
                   }}
                   className={`border-b border-border transition-colors relative z-10 ${
                     user.username === "YOU"
-                      ? "bg-primary/5 hover:bg-primary/10"
-                      : "hover:bg-muted/50"
+                      ? "bg-primary/10 hover:bg-primary/20"
+                      : "hover:bg-muted"
                   }`}
                   style={{
                     position: "relative",
@@ -93,7 +93,7 @@ export function LeaderboardTable({ users, selectedCategory }: LeaderboardTablePr
                   <motion.td layout className="px-6 py-4 whitespace-nowrap flex items-center">
                     <span className="text-2xl">{user.avatar}</span>
                     <div className="flex items-center ml-2">
-                      <Text variant="body" weight="medium">#{index + 1}</Text>
+                      <Text variant="body" weight="medium" className="text-foreground">#{index + 1}</Text>
                       {user.trend && (
                         <TrendIndicator 
                           direction={user.trend.direction} 
@@ -106,7 +106,7 @@ export function LeaderboardTable({ users, selectedCategory }: LeaderboardTablePr
                     <Text 
                       variant="body" 
                       weight="semibold"
-                      color={user.username === "YOU" ? "primary" : "default"}
+                      className={user.username === "YOU" ? "text-primary dark:text-primary" : "text-foreground"}
                     >
                       {user.username}
                     </Text>
@@ -118,7 +118,7 @@ export function LeaderboardTable({ users, selectedCategory }: LeaderboardTablePr
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", stiffness: 200, damping: 15 }}
                     >
-                      <Text variant="body" mono weight="medium">
+                      <Text variant="body" mono weight="medium" className="text-foreground">
                         {selectedCategory === "score" ? user.score.toLocaleString() : user[selectedCategory]}
                       </Text>
                     </motion.div>
@@ -130,7 +130,7 @@ export function LeaderboardTable({ users, selectedCategory }: LeaderboardTablePr
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", stiffness: 200, damping: 15 }}
                     >
-                      <Text variant="body" mono weight="medium">{user.challenges}</Text>
+                      <Text variant="body" mono weight="medium" className="text-foreground">{user.challenges}</Text>
                     </motion.div>
                   </motion.td>
                   <motion.td layout className="px-6 py-4 text-right whitespace-nowrap">
@@ -140,7 +140,7 @@ export function LeaderboardTable({ users, selectedCategory }: LeaderboardTablePr
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", stiffness: 200, damping: 15 }}
                     >
-                      <Text variant="body" mono weight="medium">{user.perfectScores}</Text>
+                      <Text variant="body" mono weight="medium" className="text-foreground">{user.perfectScores}</Text>
                     </motion.div>
                   </motion.td>
                   <motion.td layout className="px-6 py-4 text-right whitespace-nowrap">

@@ -14,8 +14,8 @@ interface TrendValueProps {
 }
 
 function TrendValue({ value, trend, color = "default", delay = 0, inView }: TrendValueProps) {
-  const trendColor = trend?.direction === "up" ? "text-emerald-500" : 
-                    trend?.direction === "down" ? "text-rose-500" : "";
+  const trendColor = trend?.direction === "up" ? "text-emerald-500 dark:text-emerald-400" : 
+                    trend?.direction === "down" ? "text-rose-500 dark:text-rose-400" : "";
   
   return (
     <motion.div
@@ -28,7 +28,7 @@ function TrendValue({ value, trend, color = "default", delay = 0, inView }: Tren
         variant="body" 
         mono 
         weight="medium"
-        className={color !== "default" ? color : undefined}
+        className={color === "default" ? "text-foreground" : `${color} dark:opacity-90`}
       >
         {trend?.prefix}{value}
       </Text>
@@ -66,7 +66,7 @@ function StatRow({ label, value, trend, color = "default", delay = 0, inView }: 
       animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
       transition={{ duration: 0.3, delay }}
     >
-      <Text variant="body" color="secondary">{label}</Text>
+      <Text variant="body" className="text-muted-foreground">{label}</Text>
       <TrendValue 
         value={value} 
         trend={trend} 
@@ -105,7 +105,7 @@ export function StatsCard({ title, stats, className = "", progressValue }: Stats
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.4 }}
     >
-      <Text variant="h4" className="mb-4">{title}</Text>
+      <Text variant="h4" className="mb-4 text-foreground font-semibold">{title}</Text>
       <div className="space-y-2">
         {stats.map((stat, index) => (
           <StatRow
