@@ -90,7 +90,7 @@ function ChallengeCard({ challenge }: { challenge: Challenge }) {
                 </body>
               </html>
             `}
-            className="w-full h-full border-0"
+            className="w-full h-full border-0 pointer-events-none"
             sandbox="allow-scripts"
             loading="lazy"
           />
