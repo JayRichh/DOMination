@@ -62,11 +62,11 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Header */}
-      <header className="flex-none border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
+    <div className="container max-w-7xl mx-auto grid grid-rows-[auto_1fr] h-[calc((100vh-4rem))]">
+      {/* Header - Fixed height, always visible */}
+      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex-shrink-0">
             <h1 className="text-2xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               {challenge.title}
             </h1>
@@ -75,7 +75,7 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             </p>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 flex-shrink-0">
             {score !== null && (
               <div className="text-center">
                 <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -94,12 +94,12 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Side - Editor */}
-        <div className="flex-1 flex flex-col border-r border-border bg-muted overflow-hidden">
-          {/* HTML Preview */}
-          <div className="flex-none p-4 border-b border-border">
+      {/* Main Content - Grid Layout */}
+      <main className="grid grid-cols-2 min-h-0">
+        {/* Left Panel - Editor */}
+        <section className="grid grid-rows-[auto_1fr] min-h-0 border-r border-border bg-muted">
+          {/* HTML Preview - Fixed height */}
+          <div className="p-4 border-b border-border">
             <h3 className="text-sm font-medium text-muted-foreground mb-2">HTML Structure</h3>
             <div className="p-3 rounded-lg bg-background/50 border border-border overflow-auto max-h-40">
               <pre className="text-sm font-mono text-muted-foreground">
@@ -108,23 +108,24 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             </div>
           </div>
 
-          {/* CSS Editor */}
-          <div className="flex-1 overflow-auto">
+          {/* CSS Editor - Fills remaining space */}
+          <div className="min-h-0">
             <Editor 
               defaultValue={getStarterCSS(challenge)}
               targetHtml={challenge.targetHtml}
               onChange={handleCssChange}
             />
           </div>
-        </div>
+        </section>
 
-        {/* Right Side - Preview */}
-        <div className="flex-1 flex flex-col bg-muted overflow-hidden">
-          <div className="flex-1 grid grid-rows-2 gap-6 p-6 overflow-auto">
+        {/* Right Panel - Preview */}
+        <section className="grid grid-rows-[1fr_auto] min-h-0 bg-muted">
+          {/* Preview Grid */}
+          <div className="grid grid-rows-2 gap-6 p-6 min-h-0 overflow-auto">
             {/* User Preview */}
-            <div className="space-y-2">
+            <div className="space-y-2 min-h-0">
               <h3 className="text-sm font-medium text-muted-foreground">Your Output</h3>
-              <div className="h-full rounded-lg overflow-hidden shadow-lg">
+              <div className="h-[calc(100%-2rem)] rounded-lg overflow-hidden shadow-lg">
                 <PreviewPane
                   html={challenge.targetHtml}
                   css={userCss}
@@ -134,9 +135,9 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             </div>
 
             {/* Target Preview */}
-            <div className="space-y-2">
+            <div className="space-y-2 min-h-0">
               <h3 className="text-sm font-medium text-muted-foreground">Target</h3>
-              <div className="h-full rounded-lg overflow-hidden shadow-lg">
+              <div className="h-[calc(100%-2rem)] rounded-lg overflow-hidden shadow-lg">
                 <PreviewPane
                   html={challenge.targetHtml}
                   css={challenge.targetCss}
@@ -146,8 +147,8 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             </div>
           </div>
 
-          {/* Comparison Tools */}
-          <div className="flex-none border-t border-border p-6 bg-background/60 backdrop-blur-xl">
+          {/* Comparison Tools - Fixed height */}
+          <div className="border-t border-border p-6 bg-background/60 backdrop-blur-xl">
             <ComparisonSlider
               userOutput={
                 <PreviewPane
@@ -165,8 +166,8 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
               }
             />
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }
