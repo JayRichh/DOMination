@@ -4,7 +4,7 @@ import { ChallengePage } from "./ChallengePage";
 import { generateMetadata } from "./metadata";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export function generateStaticParams() {
@@ -16,7 +16,9 @@ export function generateStaticParams() {
 export { generateMetadata };
 
 export default async function Page({ params }: Props) {
-  const challenge = challenges.find((c) => c.id === params.id);
+  // Destructure id from params Promise
+  const { id } = await params;
+  const challenge = challenges.find((c) => c.id === id);
 
   if (!challenge) {
     notFound();

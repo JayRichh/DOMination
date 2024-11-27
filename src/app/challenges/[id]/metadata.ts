@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { challenges } from "../data";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const challenge = challenges.find((c) => c.id === params.id);
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // Destructure id from params Promise
+  const { id } = await params;
+  const challenge = challenges.find((c) => c.id === id);
   
   if (!challenge) {
     return {

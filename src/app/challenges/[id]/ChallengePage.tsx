@@ -5,6 +5,7 @@ import { Editor } from "~/components/Editor";
 import { PreviewPane } from "~/components/PreviewPane";
 import { ComparisonSlider } from "~/components/ComparisonSlider";
 import type { Challenge } from "~/types/challenge";
+import { saveChallengeState, getChallengeState } from "~/utils/challengeState";
 
 interface ChallengePageProps {
   challenge: Challenge;
@@ -31,9 +32,13 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
   const [score, setScore] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Initialize CSS on mount
+  // Initialize CSS and load saved state on mount
   useEffect(() => {
     setUserCss(getStarterCSS(challenge));
+    const savedState = getChallengeState(challenge.id);
+    if (savedState) {
+      setScore(savedState.score);
+    }
     setMounted(true);
   }, [challenge]);
 
@@ -47,8 +52,10 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
       0,
       100 - (userCss.length - challenge.optimalCodeLength) / 2
     );
-    setScore(Math.round(codeEfficiencyScore));
-  }, [userCss, challenge.optimalCodeLength]);
+    const finalScore = Math.round(codeEfficiencyScore);
+    setScore(finalScore);
+    saveChallengeState(challenge.id, finalScore);
+  }, [userCss, challenge.optimalCodeLength, challenge.id]);
 
   if (!mounted) {
     return null;
