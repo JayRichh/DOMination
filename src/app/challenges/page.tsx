@@ -2,16 +2,25 @@ import { Suspense } from "react";
 import { PageLayout } from "~/components/PageLayout";
 import { Text } from "~/components/ui/Text";
 import { challenges } from "./data";
-import { ChallengeList } from "./ChallengeList";
+import { ChallengesList } from "./ChallengesList";
 import { StatsOverview } from "./StatsOverview";
+import { getAllChallengeStates } from "~/utils/challengeState";
 
 async function getChallenges() {
   await new Promise(resolve => setTimeout(resolve, 0));
   return challenges;
 }
 
+function getCompletedChallenges(): string[] {
+  const states = getAllChallengeStates();
+  return Object.entries(states)
+    .filter(([_, state]) => state.bestScore?.combinedScore === 100)
+    .map(([id]) => id);
+}
+
 export default async function ChallengesPage() {
   const challenges = await getChallenges();
+  const completedChallenges = getCompletedChallenges();
 
   return (
     <PageLayout>
@@ -50,7 +59,10 @@ export default async function ChallengesPage() {
               ))}
             </div>
           }>
-            <ChallengeList challenges={challenges} />
+            <ChallengesList 
+              challenges={challenges} 
+              completedChallenges={completedChallenges}
+            />
           </Suspense>
         </div>
       </div>

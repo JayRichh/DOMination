@@ -10,7 +10,7 @@ interface PageLayoutProps {
   fullWidth?: boolean;
 }
 
-export function PageLayout({ children, className = "", fullWidth = false }: PageLayoutProps) {
+export function PageLayout({ children, className = "" }: PageLayoutProps) {
   const pathname = usePathname();
   const isChallengePage = /^\/challenges\/\d+/.test(pathname || '');
 

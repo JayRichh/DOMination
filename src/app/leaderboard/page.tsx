@@ -85,7 +85,7 @@ export default function LeaderboardPage() {
                 Global Leaderboard
               </Text>
               <div className="absolute -bottom-2 left-0 right-0 h-[2px] bg-[#6B8AFF]/20 dark:bg-primary/20">
-                <div className="absolute top-0 left-0 right-0 h-full bg-[#6B8AFF]/40 dark:bg-primary/40" style={{ width: '50%', animation: 'moveUnderline 2s ease-in-out infinite' }}></div>
+                <div className="absolute top-0 left-0 right-0 h-full bg-[#6B8AFF]/40 dark:bg-primary/40" style={{ width: '50%', animation: 'moveUnderline 2s ease-in-out infinite' }}/>
               </div>
             </div>
             <Text variant="body-lg" className="text-[#6B8AFF]/60 dark:text-muted-foreground mt-6 w-full text-center right-[3.8rem]">

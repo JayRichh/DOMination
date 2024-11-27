@@ -34,27 +34,47 @@ const item = {
 
 interface ChallengesListProps {
   challenges: Challenge[];
+  completedChallenges?: string[];
 }
 
-export function ChallengesList({ challenges }: ChallengesListProps) {
+export function ChallengesList({ challenges, completedChallenges = [] }: ChallengesListProps) {
   const [filteredChallenges, setFilteredChallenges] = useState(challenges);
   const [hoveredArrow, setHoveredArrow] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
 
-  const handleFilterChange = (difficulty: string, searchQuery: string) => {
+  const completedCount = completedChallenges.length;
+
+  const handleShowCompletedChange = (value: boolean) => {
+    setShowCompleted(value);
+    filterChallenges(value, selectedDifficulty);
+  };
+
+  const handleDifficultyChange = (value: string) => {
+    setSelectedDifficulty(value);
+    filterChallenges(showCompleted, value);
+  };
+
+  const filterChallenges = (completed: boolean, difficulty: string) => {
     const filtered = challenges.filter(challenge => {
+      const isCompleted = completedChallenges.includes(challenge.id);
+      const matchesCompleted = !completed || isCompleted;
       const matchesDifficulty = difficulty === "all" || challenge.difficulty === difficulty;
-      const matchesSearch = searchQuery === "" || 
-        challenge.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        challenge.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesDifficulty && matchesSearch;
+      return matchesCompleted && matchesDifficulty;
     });
     setFilteredChallenges(filtered);
   };
 
   return (
     <div>
-      <ChallengeFilters onFilterChange={handleFilterChange} />
+      <ChallengeFilters 
+        showCompleted={showCompleted}
+        completedCount={completedCount}
+        selectedDifficulty={selectedDifficulty}
+        onShowCompletedChange={handleShowCompletedChange}
+        onDifficultyChange={handleDifficultyChange}
+      />
       
       <motion.div 
         variants={container}

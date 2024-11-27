@@ -7,8 +7,6 @@ import { getChallengeState, getAllChallengeStates } from "~/utils/challengeState
 import type { Challenge } from "~/types/challenge";
 import { ChallengeFilters } from "./ChallengeFilters";
 
-const MotionLink = motion(Link);
-
 function ChallengeCard({ challenge }: { challenge: Challenge }) {
   const [completionState, setCompletionState] = useState<{ characterScore: number; visualScore: number; combinedScore: number } | null>(null);
 

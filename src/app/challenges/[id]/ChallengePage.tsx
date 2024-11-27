@@ -164,7 +164,7 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
       });
       console.error('Score update error:', err);
     }
-  }, [userHtml, userCss, challenge.id, challenge.optimalCodeLength]);
+  }, [userHtml, userCss, challenge.id, challenge.optimalCodeLength, validateSubmission]);
 
   if (!mounted) return null;
 
