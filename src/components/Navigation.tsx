@@ -19,25 +19,27 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 h-16 border-b border-border bg-background/90 backdrop-blur-lg shadow-sm">
-      <div className="max-w-7xl mx-auto px-8 h-full">
-        <div className="flex h-full items-center justify-between">
+    <nav className="sticky top-0 z-50 h-16 border-b border-border backdrop-blur-lg">
+      <div className="h-full">
+        <div className="flex h-full items-center justify-between px-8">
           <div className="flex items-center space-x-8">
             <Link 
               href="/"
-              className="text-2xl font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+              prefetch={true}
+              className="text-2xl font-extrabold text-[#6B8AFF]/80 dark:text-foreground hover:opacity-80 transition-opacity"
             >
-              CSS Battle
+              DOMination
             </Link>
             <div className="hidden md:flex items-center space-x-6">
               {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
+                  prefetch={true}
                   className={`text-sm font-medium transition-colors ${
                     isActive(href)
-                      ? 'text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'text-[#6B8AFF] dark:text-foreground'
+                      : 'text-[#6B8AFF]/60 hover:text-[#6B8AFF] dark:text-muted-foreground dark:hover:text-foreground'
                   }`}
                 >
                   {label}
@@ -50,10 +52,11 @@ export function Navigation() {
             <ThemeToggle />
             <Link
               href="/stats"
+              prefetch={true}
               className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
                 isActive('/stats')
-                  ? 'bg-primary/10 text-foreground'
-                  : 'hover:bg-accent/10 text-muted-foreground hover:text-foreground'
+                  ? 'bg-[#6B8AFF]/10 text-[#6B8AFF] dark:bg-primary/10 dark:text-foreground'
+                  : 'hover:bg-[#6B8AFF]/5 text-[#6B8AFF]/60 hover:text-[#6B8AFF] dark:hover:bg-accent/10 dark:text-muted-foreground dark:hover:text-foreground'
               }`}
             >
               <svg 

@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | CSS Battle',
-    default: 'CSS Battle - Test Your CSS Skills',
+    template: '%s | DOMination',
+    default: 'DOMination - Test Your CSS Skills',
   },
   description: 'Master CSS by recreating targets with code. Engage in fun and interactive challenges to elevate your CSS skills.',
-  applicationName: 'CSS Battle',
-  authors: [{ name: 'CSS Battle Team' }],
+  applicationName: 'DOMination',
+  authors: [{ name: 'DOMination Team' }],
   keywords: ['CSS', 'Web Development', 'Coding Challenge', 'Learning', 'Frontend Development'],
-  creator: 'CSS Battle Team',
-  publisher: 'CSS Battle',
+  creator: 'DOMination Team',
+  publisher: 'DOMination',
   formatDetection: {
     email: false,
     address: false,
@@ -20,21 +20,21 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://cssbattle.dev',
-    siteName: 'CSS Battle',
-    title: 'CSS Battle - Test Your CSS Skills',
+    siteName: 'DOMination',
+    title: 'DOMination - Test Your CSS Skills',
     description: 'Master CSS by recreating targets with code. Engage in fun and interactive challenges to elevate your CSS skills.',
     images: [
       {
         url: '/screenshots/home.png',
         width: 1200,
         height: 630,
-        alt: 'CSS Battle',
+        alt: 'DOMination',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CSS Battle - Test Your CSS Skills',
+    title: 'DOMination - Test Your CSS Skills',
     description: 'Master CSS by recreating targets with code. Engage in fun and interactive challenges.',
     images: ['/screenshots/home.png'],
     creator: '@cssbattle',

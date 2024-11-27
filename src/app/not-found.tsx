@@ -15,12 +15,14 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
           <Link 
             href="/"
+            prefetch={true}
             className="btn btn-primary"
           >
             Return Home
           </Link>
           <Link 
             href="/challenges"
+            prefetch={true}
             className="btn btn-ghost"
           >
             View Challenges
@@ -28,7 +30,6 @@ export default function NotFound() {
         </div>
       </div>
 
-      {/* 404 Background Pattern */}
       <div className="fixed inset-0 -z-10 opacity-5">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
       </div>

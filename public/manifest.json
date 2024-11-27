@@ -1,7 +1,7 @@
 {
-  "name": "CSS Battle",
-  "short_name": "CSS Battle",
-  "description": "Master CSS by recreating targets with code. Engage in fun and interactive challenges.",
+  "name": "DOMination",
+  "short_name": "DOMination",
+  "description": "Master CSS by recreating targets with code.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

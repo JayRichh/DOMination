@@ -29,7 +29,7 @@ const variantClasses: Record<TextVariant, string> = {
 };
 
 const colorClasses = {
-  default: "text-foreground",
+  default: "text-[#6B8AFF]/80 dark:text-foreground",
   primary: "text-primary dark:text-primary",
   secondary: "text-muted-foreground dark:text-muted-foreground",
   success: "text-emerald-600 dark:text-emerald-400",
@@ -51,10 +51,10 @@ const alignClasses = {
 
 const gradientClasses: Record<TextGradient, string> = {
   none: "",
-  blue: "bg-gradient-to-r from-blue-500 to-cyan-500 dark:from-blue-400 dark:to-cyan-400 text-transparent bg-clip-text",
-  purple: "bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-400 dark:to-pink-400 text-transparent bg-clip-text",
-  orange: "bg-gradient-to-r from-orange-500 to-red-500 dark:from-orange-400 dark:to-red-400 text-transparent bg-clip-text",
-  primary: "bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text",
+  blue: "bg-gradient-to-r from-[#6B8AFF]/80 to-[#B4C4FF]/80 dark:from-blue-400 dark:to-cyan-400 text-transparent bg-clip-text",
+  purple: "bg-gradient-to-r from-[#6B8AFF]/80 to-[#B4C4FF]/80 dark:from-purple-400 dark:to-pink-400 text-transparent bg-clip-text",
+  orange: "bg-gradient-to-r from-[#6B8AFF]/80 to-[#B4C4FF]/80 dark:from-orange-400 dark:to-red-400 text-transparent bg-clip-text",
+  primary: "bg-gradient-to-r from-[#6B8AFF]/80 to-[#B4C4FF]/80 dark:from-primary dark:to-accent text-transparent bg-clip-text",
 };
 
 export const Text = forwardRef<HTMLDivElement, TextProps>(

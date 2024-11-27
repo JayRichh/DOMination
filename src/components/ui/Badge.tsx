@@ -1,129 +1,64 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-
-import * as React from "react";
-
-import { cn } from "~/utils/cn";
-
-type BadgeVariant = "default" | "outline" | "solid" | "secondary";
-type BadgeColor = "primary" | "success" | "warning" | "error" | "info";
-type BadgeSize = "sm" | "md" | "lg";
+import { motion } from 'framer-motion';
+import { cn } from '~/utils/cn';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: BadgeVariant;
-  color?: BadgeColor;
-  size?: BadgeSize;
-  icon?: React.ReactNode;
-  removable?: boolean;
-  onRemove?: () => void;
-  pulse?: boolean;
+  variant?: 'default' | 'outline';
   className?: string;
 }
 
-const colors: Record<BadgeColor, { base: string; solid: string }> = {
-  primary: {
-    base: "text-primary border-primary",
-    solid: "bg-primary",
-  },
-  success: {
-    base: "text-green-600 border-green-600",
-    solid: "bg-green-600",
-  },
-  warning: {
-    base: "text-amber-600 border-amber-600",
-    solid: "bg-amber-600",
-  },
-  error: {
-    base: "text-red-600 border-red-600",
-    solid: "bg-red-600",
-  },
-  info: {
-    base: "text-blue-600 border-blue-600",
-    solid: "bg-blue-600",
-  },
+const difficultyStyles = {
+  easy: "bg-green-500/10 text-green-500 border-green-500/20",
+  medium: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+  hard: "bg-red-500/10 text-red-500 border-red-500/20"
 };
 
-const sizes: Record<BadgeSize, string> = {
-  sm: "text-xs px-2 py-0.5 gap-1",
-  md: "text-sm px-2.5 py-1 gap-1.5",
-  lg: "text-base px-3 py-1.5 gap-2",
-};
-
-export function Badge({
-  children,
-  variant = "default",
-  color = "primary",
-  size = "md",
-  icon,
-  removable = false,
-  onRemove,
-  pulse = false,
-  className,
+export function Badge({ 
+  children, 
+  variant = 'default',
+  className 
 }: BadgeProps) {
-  const colorStyle = colors[color];
-  const baseStyles = cn(
-    "inline-flex items-center justify-center",
-    "font-medium rounded-full",
-    "transition-colors duration-200",
-    sizes[size],
-    variant === "solid"
-      ? colorStyle.solid
-      : cn(
-          colorStyle.base,
-          variant === "default" && `bg-${color}-100 dark:bg-${color}-900/20`,
-          variant === "outline" && "bg-transparent",
-          variant === "secondary" &&
-            "bg-muted/50 text-muted-foreground hover:bg-muted/80 border border-muted"
-        ),
-    className
-  );
-
   return (
-    <motion.span initial={{ scale: 0.95 }} animate={{ scale: 1 }} className={baseStyles}>
-      {pulse && (
-        <span className="relative flex h-2 w-2">
-          <span
-            className={cn(
-              "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
-              variant === "solid" ? "bg-white" : colorStyle.base
-            )}
-          />
-          <span
-            className={cn(
-              "relative inline-flex rounded-full h-2 w-2",
-              variant === "solid" ? "bg-white" : colorStyle.base
-            )}
-          />
-        </span>
+    <motion.span
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className={cn(
+        'inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-medium tracking-wide transition-colors border',
+        variant === 'default' && 'bg-primary/10 text-primary border-primary/20',
+        variant === 'outline' && 'border-primary text-primary',
+        className
       )}
+    >
+      {children}
+    </motion.span>
+  );
+}
 
-      {icon && <span className="flex-shrink-0">{icon}</span>}
-      <span className="truncate">{children}</span>
-
-      {removable && (
-        <button
-          onClick={onRemove}
-          className={cn(
-            "flex-shrink-0 ml-1 -mr-1 p-0.5",
-            "hover:bg-black/10 dark:hover:bg-white/10",
-            "rounded-full transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-current/25"
-          )}
-        >
-          <svg
-            className="w-3 h-3"
-            viewBox="0 0 12 12"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <path d="M1 1L11 11M1 11L11 1" />
-          </svg>
-        </button>
+export function DifficultyBadge({ difficulty }: { difficulty: string }) {
+  return (
+    <motion.span
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className={cn(
+        'inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase border',
+        difficultyStyles[difficulty as keyof typeof difficultyStyles]
       )}
+    >
+      {difficulty}
+    </motion.span>
+  );
+}
+
+export function TagBadge({ tag }: { tag: string }) {
+  return (
+    <motion.span
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-medium tracking-wide bg-primary/10 text-primary border border-primary/20"
+    >
+      {tag}
     </motion.span>
   );
 }

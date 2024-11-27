@@ -56,37 +56,25 @@ const features = [
 export default function HomePage() {
   return (
     <PageLayout>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         {/* Hero Section */}
-        <motion.div 
-          className="py-20 px-4 text-center"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 400,
-              damping: 30
-            }}
-          >
-            <Text variant="h1" className="mb-6 text-foreground">
-              Master CSS Through Creative Challenges
-            </Text>
-          </motion.div>
+        <div className="py-32 px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center"
           >
-            <Text variant="body-lg" className="max-w-2xl mx-auto text-foreground">
-              Join thousands of developers improving their CSS skills through interactive challenges and real-time feedback.
-            </Text>
+            <h1 className="text-7xl md:text-8xl font-bold tracking-tight mb-8 light-title dark:title-gradient">
+              DOMination
+            </h1>
+            <div className="max-w-lg mx-auto text-center">
+              <Text variant="body-lg" className="text-muted-foreground/80">
+                Level up your CSS through creative challenges
+              </Text>
+            </div>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Features Grid */}
         <motion.div
@@ -99,14 +87,14 @@ export default function HomePage() {
             <motion.div
               key={feature.title}
               variants={item}
-              className="bg-card p-6 rounded-xl border border-border shadow-lg hover:shadow-xl transition-shadow"
+              className="group bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border shadow-lg hover:shadow-xl transition-all duration-300"
               whileHover={{ 
                 scale: 1.02,
                 transition: { type: "spring", stiffness: 400, damping: 30 }
               }}
             >
               <div className="flex items-start space-x-4">
-                <div className="text-4xl">{feature.icon}</div>
+                <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
                 <div>
                   <Text variant="h4" className="mb-2 text-foreground">{feature.title}</Text>
                   <Text variant="body" className="text-muted-foreground">{feature.description}</Text>
@@ -130,6 +118,7 @@ export default function HomePage() {
           >
             <Link 
               href="/challenges" 
+              prefetch={true}
               className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium shadow-lg hover:bg-primary/90 hover:shadow-xl transition-all"
             >
               Start Challenges

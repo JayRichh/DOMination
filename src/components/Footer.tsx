@@ -6,27 +6,28 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full border-t border-border bg-background/90 backdrop-blur-lg">
-      <div className="max-w-7xl mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+    <footer className="w-full border-t border-border backdrop-blur-lg">
+      <div className="py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12 px-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              CSS Battle
+            <h3 className="text-lg font-extrabold text-[#6B8AFF]/80 dark:text-foreground">
+              DOMination
             </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-[#6B8AFF]/60 dark:text-muted-foreground leading-relaxed">
               Master CSS by recreating targets with code. Engage in fun and interactive challenges to elevate your CSS skills through practical, hands-on experience.
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-foreground">Quick Links</h3>
+            <h3 className="text-sm font-medium text-[#6B8AFF]/80 dark:text-foreground">Quick Links</h3>
             <ul className="space-y-3">
               <li>
                 <Link 
                   href="/challenges" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  prefetch={true}
+                  className="text-sm text-[#6B8AFF]/60 hover:text-[#6B8AFF] dark:text-muted-foreground dark:hover:text-foreground transition-colors"
                 >
                   Challenges
                 </Link>
@@ -34,7 +35,8 @@ export function Footer() {
               <li>
                 <Link 
                   href="/leaderboard" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  prefetch={true}
+                  className="text-sm text-[#6B8AFF]/60 hover:text-[#6B8AFF] dark:text-muted-foreground dark:hover:text-foreground transition-colors"
                 >
                   Leaderboard
                 </Link>
@@ -42,7 +44,8 @@ export function Footer() {
               <li>
                 <Link 
                   href="/stats" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  prefetch={true}
+                  className="text-sm text-[#6B8AFF]/60 hover:text-[#6B8AFF] dark:text-muted-foreground dark:hover:text-foreground transition-colors"
                 >
                   Stats
                 </Link>
@@ -50,7 +53,8 @@ export function Footer() {
               <li>
                 <Link 
                   href="/about" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  prefetch={true}
+                  className="text-sm text-[#6B8AFF]/60 hover:text-[#6B8AFF] dark:text-muted-foreground dark:hover:text-foreground transition-colors"
                 >
                   About
                 </Link>
@@ -60,13 +64,13 @@ export function Footer() {
 
           {/* Social Links */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-foreground">Connect</h3>
+            <h3 className="text-sm font-medium text-[#6B8AFF]/80 dark:text-foreground">Connect</h3>
             <div className="flex space-x-4">
               <a
-                href="https://github.com/yourusername/cssbattle"
+                href="https://github.com/jayrichh/cssbattle"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-[#6B8AFF]/60 hover:text-[#6B8AFF] dark:text-muted-foreground dark:hover:text-foreground transition-colors"
                 aria-label="GitHub"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -77,7 +81,7 @@ export function Footer() {
                 href="https://twitter.com/cssbattle"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-[#6B8AFF]/60 hover:text-[#6B8AFF] dark:text-muted-foreground dark:hover:text-foreground transition-colors"
                 aria-label="Twitter"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -89,9 +93,9 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="pt-8 border-t border-border">
-          <p className="text-sm text-muted-foreground text-center">
-            © {currentYear} CSS Battle. All rights reserved.
+        <div className="border-t border-border px-8">
+          <p className="text-sm text-[#6B8AFF]/60 dark:text-muted-foreground text-center py-8">
+            © {currentYear} DOMination. All rights reserved.
           </p>
         </div>
       </div>

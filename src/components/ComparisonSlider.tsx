@@ -51,7 +51,7 @@ function HorizontalSlider({ userOutput, targetOutput, xrayMode }: SliderProps) {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full aspect-video select-none touch-none rounded-lg overflow-hidden"
+      className="relative w-full aspect-video select-none touch-none rounded-lg overflow-hidden module-container-inner"
       onMouseDown={() => setIsDragging(true)}
       onTouchStart={() => setIsDragging(true)}
     >
@@ -73,26 +73,26 @@ function HorizontalSlider({ userOutput, targetOutput, xrayMode }: SliderProps) {
       </div>
 
       <div 
-        className="absolute top-0 bottom-0 w-0.5 bg-primary cursor-ew-resize transition-transform duration-75"
+        className="absolute top-0 bottom-0 w-0.5 bg-[#6B8AFF] dark:bg-primary cursor-ew-resize transition-transform duration-75"
         style={{ 
           left: `${position}%`,
           transform: 'translateX(-50%)'
         }}
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full shadow-lg" />
-        <div className="absolute top-1/2 -translate-y-1/2 -left-6 text-xs text-primary">◄</div>
-        <div className="absolute top-1/2 -translate-y-1/2 -right-6 text-xs text-primary">►</div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#6B8AFF] dark:bg-primary rounded-full shadow-lg" />
+        <div className="absolute top-1/2 -translate-y-1/2 -left-6 text-xs text-[#6B8AFF] dark:text-primary">◄</div>
+        <div className="absolute top-1/2 -translate-y-1/2 -right-6 text-xs text-[#6B8AFF] dark:text-primary">►</div>
       </div>
 
       <div className="absolute inset-0 pointer-events-none">
         <div 
-          className="absolute top-4 left-4 px-2 py-1 text-xs font-medium rounded-md bg-background/80 backdrop-blur-sm text-foreground transition-opacity duration-200"
+          className="absolute top-4 left-4 px-2 py-1 text-xs font-medium rounded-md bg-card/30 backdrop-blur-sm text-readable border border-border/40 transition-opacity duration-200"
           style={{ opacity: position > 50 ? 0 : 1 }}
         >
           Your Output
         </div>
         <div 
-          className="absolute top-4 right-4 px-2 py-1 text-xs font-medium rounded-md bg-background/80 backdrop-blur-sm text-foreground transition-opacity duration-200"
+          className="absolute top-4 right-4 px-2 py-1 text-xs font-medium rounded-md bg-card/30 backdrop-blur-sm text-readable border border-border/40 transition-opacity duration-200"
           style={{ opacity: position < 50 ? 0 : 1 }}
         >
           Target
@@ -150,7 +150,7 @@ function VerticalSlider({ userOutput, targetOutput, xrayMode }: SliderProps) {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full aspect-video select-none touch-none rounded-lg overflow-hidden"
+      className="relative w-full aspect-video select-none touch-none rounded-lg overflow-hidden module-container-inner"
       onMouseDown={() => setIsDragging(true)}
       onTouchStart={() => setIsDragging(true)}
     >
@@ -172,26 +172,26 @@ function VerticalSlider({ userOutput, targetOutput, xrayMode }: SliderProps) {
       </div>
 
       <div 
-        className="absolute left-0 right-0 h-0.5 bg-primary cursor-ns-resize transition-transform duration-75"
+        className="absolute left-0 right-0 h-0.5 bg-[#6B8AFF] dark:bg-primary cursor-ns-resize transition-transform duration-75"
         style={{ 
           top: `${position}%`,
           transform: 'translateY(-50%)'
         }}
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full shadow-lg" />
-        <div className="absolute left-1/2 -translate-x-1/2 -top-6 text-xs text-primary">▲</div>
-        <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-xs text-primary">▼</div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#6B8AFF] dark:bg-primary rounded-full shadow-lg" />
+        <div className="absolute left-1/2 -translate-x-1/2 -top-6 text-xs text-[#6B8AFF] dark:text-primary">▲</div>
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-xs text-[#6B8AFF] dark:text-primary">▼</div>
       </div>
 
       <div className="absolute inset-0 pointer-events-none">
         <div 
-          className="absolute top-4 left-4 px-2 py-1 text-xs font-medium rounded-md bg-background/80 backdrop-blur-sm text-foreground transition-opacity duration-200"
+          className="absolute top-4 left-4 px-2 py-1 text-xs font-medium rounded-md bg-card/30 backdrop-blur-sm text-readable border border-border/40 transition-opacity duration-200"
           style={{ opacity: position > 50 ? 0 : 1 }}
         >
           Your Output
         </div>
         <div 
-          className="absolute bottom-4 left-4 px-2 py-1 text-xs font-medium rounded-md bg-background/80 backdrop-blur-sm text-foreground transition-opacity duration-200"
+          className="absolute bottom-4 left-4 px-2 py-1 text-xs font-medium rounded-md bg-card/30 backdrop-blur-sm text-readable border border-border/40 transition-opacity duration-200"
           style={{ opacity: position < 50 ? 0 : 1 }}
         >
           Target
@@ -223,7 +223,7 @@ export function ComparisonSlider({ userOutput, targetOutput, orientation = "hori
       <div className="flex items-center justify-between">
         <button 
           onClick={() => setXrayMode(prev => !prev)}
-          className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+          className="px-3 py-1.5 text-sm font-medium rounded-md bg-[#6B8AFF]/10 hover:bg-[#6B8AFF]/20 dark:bg-primary/10 dark:hover:bg-primary/20 text-[#6B8AFF] dark:text-primary transition-colors"
           title="Press 'X' to toggle"
         >
           {xrayMode ? "Disable" : "Enable"} X-ray Mode
@@ -231,7 +231,7 @@ export function ComparisonSlider({ userOutput, targetOutput, orientation = "hori
 
         <button
           onClick={() => setCurrentOrientation(prev => prev === "horizontal" ? "vertical" : "horizontal")}
-          className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+          className="px-3 py-1.5 text-sm font-medium rounded-md bg-[#6B8AFF]/10 hover:bg-[#6B8AFF]/20 dark:bg-primary/10 dark:hover:bg-primary/20 text-[#6B8AFF] dark:text-primary transition-colors"
           title="Press 'V' to toggle"
         >
           Switch to {currentOrientation === "horizontal" ? "Vertical" : "Horizontal"}

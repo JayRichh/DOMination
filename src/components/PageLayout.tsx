@@ -22,9 +22,7 @@ export function PageLayout({ children, className = "", fullWidth = false }: Page
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className={`flex-1 ${className}`}>
-        <div className={fullWidth ? "w-full" : "max-w-7xl mx-auto px-8 py-8"}>
-          {children}
-        </div>
+        {children}
       </main>
       <Footer />
     </div>

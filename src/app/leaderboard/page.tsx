@@ -72,7 +72,7 @@ export default function LeaderboardPage() {
 
   return (
     <PageLayout>
-      <div className="min-h-screen bg-background py-12">
+      <div className="min-h-screen py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"
@@ -80,8 +80,17 @@ export default function LeaderboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Text variant="h1" className="mb-4 text-foreground font-bold">Global Leaderboard</Text>
-            <Text variant="body-lg" className="text-muted-foreground">Compete with the best CSS artists worldwide</Text>
+            <div className="relative inline-block">
+              <Text variant="h1" className="mb-4 text-[#6B8AFF]/80 dark:text-foreground font-bold">
+                Global Leaderboard
+              </Text>
+              <div className="absolute -bottom-2 left-0 right-0 h-[2px] bg-[#6B8AFF]/20 dark:bg-primary/20">
+                <div className="absolute top-0 left-0 right-0 h-full bg-[#6B8AFF]/40 dark:bg-primary/40" style={{ width: '50%', animation: 'moveUnderline 2s ease-in-out infinite' }}></div>
+              </div>
+            </div>
+            <Text variant="body-lg" className="text-[#6B8AFF]/60 dark:text-muted-foreground mt-6 w-full text-center right-[3.8rem]">
+              Compete with the best CSS artists worldwide
+            </Text>
           </motion.div>
 
           <FilterButtons

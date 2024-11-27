@@ -1,10 +1,22 @@
 import type * as Monaco from 'monaco-editor';
 import { cssSnippets, htmlSnippets } from './snippets';
-import { editorTheme } from './theme';
+import { darkTheme, lightTheme } from './theme';
 
 export function setupEditor(monaco: typeof Monaco) {
-  // Register custom theme
-  monaco.editor.defineTheme('custom', editorTheme);
+  // Register themes
+  monaco.editor.defineTheme('custom-dark', darkTheme);
+  monaco.editor.defineTheme('custom-light', lightTheme);
+
+  // Set theme based on system preference - only run on client side
+  if (typeof window !== 'undefined') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    monaco.editor.setTheme(prefersDark ? 'custom-dark' : 'custom-light');
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      monaco.editor.setTheme(e.matches ? 'custom-dark' : 'custom-light');
+    });
+  }
 
   // HTML Language Configuration
   monaco.languages.registerCompletionItemProvider('html', {
@@ -71,6 +83,52 @@ export function setupEditor(monaco: typeof Monaco) {
       }];
     }
   });
+
+  // Add custom hover providers - only run on client side
+  if (typeof window !== 'undefined') {
+    monaco.languages.registerHoverProvider('css', {
+      provideHover: (model, position) => {
+        const word = model.getWordAtPosition(position);
+        if (!word) return null;
+
+        // Color value hover
+        if (word.word.match(/^#[0-9a-fA-F]{3,8}$/)) {
+          return {
+            contents: [
+              { value: '**Color Preview**' },
+              {
+                value: `\`${word.word}\`\n\n<div style="width: 20px; height: 20px; background: ${word.word}; border: 1px solid #ccc;"></div>`
+              }
+            ],
+            range: {
+              startLineNumber: position.lineNumber,
+              endLineNumber: position.lineNumber,
+              startColumn: word.startColumn,
+              endColumn: word.endColumn
+            }
+          };
+        }
+
+        // Unit value hover
+        if (word.word.match(/^\d+(.?\d+)?(px|em|rem|vh|vw|%)$/)) {
+          return {
+            contents: [
+              { value: '**Unit Value**' },
+              { value: `\`${word.word}\` - CSS measurement unit` }
+            ],
+            range: {
+              startLineNumber: position.lineNumber,
+              endLineNumber: position.lineNumber,
+              startColumn: word.startColumn,
+              endColumn: word.endColumn
+            }
+          };
+        }
+
+        return null;
+      }
+    });
+  }
 }
 
 function formatHTML(html: string): string {
@@ -79,41 +137,111 @@ function formatHTML(html: string): string {
   const lines = html.split(/>\s*</);
   
   lines.forEach((line, i) => {
-    if (line.match(/^\/\w/)) indent--;
+    // Handle self-closing tags
+    if (line.match(/\/$/)) {
+      formatted += '\n' + '  '.repeat(indent) + line.trim() + (i < lines.length - 1 ? '>' : '') + (i === 0 ? '' : '<');
+      return;
+    }
+
+    // Handle closing tags
+    if (line.match(/^\/\w/)) {
+      indent = Math.max(0, indent - 1);
+      formatted += '\n' + '  '.repeat(indent) + line.trim() + (i < lines.length - 1 ? '>' : '') + (i === 0 ? '' : '<');
+      return;
+    }
+
+    // Handle opening tags
     formatted += '\n' + '  '.repeat(indent) + line.trim() + (i < lines.length - 1 ? '>' : '') + (i === 0 ? '' : '<');
-    if (!line.match(/^\//) && line.match(/^[\w\-]+(?!\/)/) && !line.match(/\/$/)) indent++;
+    if (!line.match(/^\//) && line.match(/^[\w\-]+(?!\/)/) && !line.match(/\/$/)) {
+      indent++;
+    }
   });
   
   return formatted.trim();
 }
 
 function formatCSS(css: string): string {
-  return css
-    .replace(/\s*{\s*/g, ' {\n  ')
-    .replace(/\s*}\s*/g, '\n}\n')
-    .replace(/;\s*/g, ';\n  ')
-    .replace(/,\s*/g, ', ')
-    .replace(/\n\s*\n/g, '\n')
-    .replace(/\n\s*}/g, '\n}')
-    .trim();
+  // Remove extra whitespace
+  css = css.replace(/\s+/g, ' ').trim();
+
+  // Format selectors
+  css = css.replace(/\s*{\s*/g, ' {\n  ');
+  css = css.replace(/\s*}\s*/g, '\n}\n\n');
+
+  // Format properties
+  css = css.replace(/;\s*/g, ';\n  ');
+  css = css.replace(/:\s*/g, ': ');
+
+  // Format media queries
+  css = css.replace(/@media[^{]+{\s*/g, (match) => match.trim() + '\n  ');
+
+  // Clean up extra newlines
+  css = css.replace(/\n\s*\n/g, '\n\n');
+  css = css.replace(/\n\s*}/g, '\n}');
+
+  return css.trim();
 }
 
 export const editorOptions = {
-  theme: 'custom',
-  fontSize: 14,
-  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+  theme: 'custom-dark',
+  fontSize: 15,
+  lineHeight: 1.6,
+  letterSpacing: 0.5,
+  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
   minimap: { enabled: false },
-  lineNumbers: 'on',
+  lineNumbers: "on",
+  roundedSelection: false,
   scrollBeyondLastLine: false,
   automaticLayout: true,
-  tabSize: 2,
-  wordWrap: 'on',
+  padding: { top: 16 },
+  wordWrap: "on",
   formatOnPaste: true,
   formatOnType: true,
+  tabSize: 2,
+  renderLineHighlight: "all",
   suggestOnTriggerCharacters: true,
+  acceptSuggestionOnEnter: "on",
+  cursorBlinking: "smooth",
+  cursorSmoothCaretAnimation: "on",
+  smoothScrolling: true,
+  folding: true,
+  lineDecorationsWidth: 10,
+  scrollbar: {
+    useShadows: false,
+    verticalScrollbarSize: 8,
+    horizontalScrollbarSize: 8,
+  },
+  overviewRulerBorder: false,
+  overviewRulerLanes: 0,
+  hideCursorInOverviewRuler: true,
+  glyphMargin: false,
   quickSuggestions: {
     other: true,
     comments: true,
-    strings: true
-  }
+    strings: true,
+  },
+  contextmenu: true,
+  mouseWheelZoom: true,
+  suggest: {
+    showKeywords: true,
+    showSnippets: true,
+    showClasses: true,
+    showColors: true,
+    showFiles: true,
+    showFunctions: true,
+    showModules: true,
+    showProperties: true,
+    showWords: true,
+    showValues: true,
+  },
+  hover: {
+    above: false,
+    delay: 100,
+    sticky: true
+  },
+  parameterHints: {
+    enabled: true,
+    cycle: true
+  },
+  fixedOverflowWidgets: true
 };

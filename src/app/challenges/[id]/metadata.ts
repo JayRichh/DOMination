@@ -13,16 +13,16 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
 
   if (!challenge) {
     return {
-      title: "Challenge Not Found | CSS Battle",
+      title: "Challenge Not Found | DOMination",
       description: "The requested challenge could not be found.",
     };
   }
 
   return {
-    title: `${challenge.title} | CSS Battle`,
+    title: `${challenge.title} | DOMination`,
     description: challenge.description,
     openGraph: {
-      title: `${challenge.title} | CSS Battle`,
+      title: `${challenge.title} | DOMination`,
       description: challenge.description,
       type: "website",
       images: [
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
     },
     twitter: {
       card: "summary_large_image",
-      title: `${challenge.title} | CSS Battle`,
+      title: `${challenge.title} | DOMination`,
       description: challenge.description,
       images: [`/screenshots/challenges/${challenge.id}.png`],
     },

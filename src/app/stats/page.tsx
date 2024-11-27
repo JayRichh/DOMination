@@ -7,6 +7,8 @@ import { PageLayout } from "~/components/PageLayout";
 import { ResponsiveLine } from '@nivo/line';
 import { ResponsiveBar } from '@nivo/bar';
 import { ResponsiveRadar } from '@nivo/radar';
+import { chartTheme } from '~/components/ui/ChartContainer';
+import { ChartContainer } from '~/components/ui/ChartContainer';
 import type { ChallengeScore, ChallengeState } from '~/types/challenge';
 
 interface ScoreWithId extends ChallengeScore {
@@ -42,68 +44,85 @@ interface StatsData {
   }[];
 }
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15
-    }
-  }
-};
+const generateDummyData = (): StatsData => {
+  const now = new Date();
+  const dummyScores: ScoreWithId[] = Array.from({ length: 10 }, (_, i) => ({
+    challengeId: `${i + 1}`,
+    characterScore: 75 + Math.random() * 25,
+    visualScore: 80 + Math.random() * 20,
+    combinedScore: 85 + Math.random() * 15,
+    characterCount: 200 + Math.floor(Math.random() * 300),
+    pixelAccuracy: 0.9 + Math.random() * 0.1,
+    timestamp: new Date(now.getTime() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    html: '',
+    css: ''
+  }));
 
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 500,
-      damping: 30
-    }
-  }
-};
+  const avgCharScore = dummyScores.reduce((sum, score) => sum + score.characterScore, 0) / dummyScores.length;
+  const avgVisualScore = dummyScores.reduce((sum, score) => sum + score.visualScore, 0) / dummyScores.length;
+  const avgCombinedScore = dummyScores.reduce((sum, score) => sum + score.combinedScore, 0) / dummyScores.length;
 
-const chartTheme = {
-  background: 'transparent',
-  textColor: 'hsl(var(--muted-foreground))',
-  fontSize: 12,
-  axis: {
-    domain: {
-      line: {
-        stroke: 'hsl(var(--border))',
-        strokeWidth: 1
+  return {
+    totalChallenges: dummyScores.length,
+    averageCharacterScore: Number(avgCharScore.toFixed(2)),
+    averageVisualScore: Number(avgVisualScore.toFixed(2)),
+    averageCombinedScore: Number(avgCombinedScore.toFixed(2)),
+    bestScore: dummyScores[0],
+    recentScores: dummyScores,
+    scoreDistribution: Array.from({ length: 5 }, (_, i) => ({
+      range: `${i * 20}-${(i + 1) * 20}`,
+      count: Math.floor(Math.random() * 10)
+    })),
+    performanceMetrics: [
+      { category: 'Character Optimization', value: avgCharScore },
+      { category: 'Visual Accuracy', value: avgVisualScore },
+      { category: 'Code Efficiency', value: 85 },
+      { category: 'Consistency', value: 90 },
+      { category: 'Progress Rate', value: 75 }
+    ],
+    timeBasedProgress: [
+      {
+        id: 'Combined Score',
+        data: dummyScores.map(score => ({
+          x: new Date(score.timestamp).toLocaleDateString(),
+          y: score.combinedScore
+        })).reverse()
+      },
+      {
+        id: 'Character Score',
+        data: dummyScores.map(score => ({
+          x: new Date(score.timestamp).toLocaleDateString(),
+          y: score.characterScore
+        })).reverse()
+      },
+      {
+        id: 'Visual Score',
+        data: dummyScores.map(score => ({
+          x: new Date(score.timestamp).toLocaleDateString(),
+          y: score.visualScore
+        })).reverse()
       }
-    },
-    ticks: {
-      line: {
-        stroke: 'hsl(var(--border))',
-        strokeWidth: 1
+    ],
+    optimizationMetrics: [
+      {
+        metric: 'Code Efficiency',
+        value: 250,
+        description: 'Average characters per solution'
+      },
+      {
+        metric: 'Visual Precision',
+        value: 85,
+        description: 'Solutions with >95% accuracy'
+      },
+      {
+        metric: 'Optimization Rate',
+        value: 75,
+        description: 'Solutions with excellent optimization'
       }
-    }
-  },
-  grid: {
-    line: {
-      stroke: 'hsl(var(--border))',
-      strokeWidth: 1,
-      strokeDasharray: '2,4'
-    }
-  },
-  tooltip: {
-    container: {
-      background: 'hsl(var(--card))',
-      color: 'hsl(var(--card-foreground))',
-      fontSize: '12px',
-      borderRadius: '8px',
-      boxShadow: '0 8px 16px -4px rgb(0 0 0 / 0.2)',
-      padding: '12px 16px',
-      border: '1px solid hsl(var(--border))'
-    }
-  }
+    ]
+  };
 };
 
-// Helper function to calculate standard deviation
 const calculateStandardDeviation = (values: number[]): number => {
   const n = values.length;
   if (n < 2) return 0;
@@ -126,8 +145,14 @@ export default function StatsPage() {
     timeBasedProgress: [],
     optimizationMetrics: []
   });
+  const [useDummyData, setUseDummyData] = useState(false);
 
   const loadStats = () => {
+    if (useDummyData) {
+      setStats(generateDummyData());
+      return;
+    }
+
     const challengeStates = getAllChallengeStates();
     
     const scoresWithIds = Object.entries(challengeStates)
@@ -140,7 +165,11 @@ export default function StatsPage() {
         challengeId: id
       }));
 
-    if (scoresWithIds.length === 0) return;
+    if (scoresWithIds.length === 0) {
+      setUseDummyData(true);
+      setStats(generateDummyData());
+      return;
+    }
 
     const avgCharScore = scoresWithIds.reduce((sum, score) => sum + score.characterScore, 0) / scoresWithIds.length;
     const avgVisualScore = scoresWithIds.reduce((sum, score) => sum + score.visualScore, 0) / scoresWithIds.length;
@@ -154,17 +183,14 @@ export default function StatsPage() {
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     ).slice(0, 10);
 
-    // Enhanced score distribution with more granular ranges
     const distribution = Array.from({ length: 20 }, (_, i) => ({
       range: `${i * 5}-${(i + 1) * 5}`,
       count: scoresWithIds.filter(s => s.combinedScore >= i * 5 && s.combinedScore < (i + 1) * 5).length
     })).filter(d => d.count > 0);
 
-    // Calculate score consistency using standard deviation
     const scoreStdDev = calculateStandardDeviation(scoresWithIds.map(s => s.combinedScore));
     const consistencyScore = Math.max(0, 100 - (scoreStdDev * 2));
 
-    // Performance metrics for radar chart
     const performanceMetrics = [
       { category: 'Character Optimization', value: avgCharScore },
       { category: 'Visual Accuracy', value: avgVisualScore },
@@ -173,7 +199,6 @@ export default function StatsPage() {
       { category: 'Progress Rate', value: (scoresWithIds.length / 100) * 100 }
     ];
 
-    // Time-based progress tracking
     const timeBasedProgress = [
       {
         id: 'Combined Score',
@@ -198,7 +223,6 @@ export default function StatsPage() {
       }
     ];
 
-    // Enhanced optimization metrics
     const optimizationMetrics = [
       {
         metric: 'Code Efficiency',
@@ -233,7 +257,7 @@ export default function StatsPage() {
 
   useEffect(() => {
     loadStats();
-  }, []);
+  }, [useDummyData]);
 
   const clearAllData = () => {
     if (window.confirm('Are you sure you want to clear all your progress? This action cannot be undone.')) {
@@ -242,22 +266,26 @@ export default function StatsPage() {
     }
   };
 
+  const toggleDummyData = () => {
+    setUseDummyData(!useDummyData);
+  };
+
   return (
     <PageLayout>
-      <div className="min-h-screen bg-background">
-        <div className="container max-w-[1600px] mx-auto py-16 px-8">
+      <div className="min-h-screen">
+        <div className="container max-w-[2000px] mx-auto">
           <motion.div 
-            className="mb-16 p-8 rounded-2xl bg-card border border-border shadow-lg"
+            className="border-b border-border"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
+            <div className="flex flex-col lg:flex-row justify-between items-start gap-8 p-8">
               <div className="space-y-4">
-                <h1 className="text-5xl font-bold text-foreground">
+                <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
                   Performance Analytics
                 </h1>
-                <div className="space-y-2 text-xl">
+                <div className="space-y-2 text-lg md:text-xl">
                   <p className="text-foreground">Total Challenges Completed: <span className="font-semibold">{stats.totalChallenges}</span></p>
                   <p className="text-foreground">Average Score: <span className="font-semibold">{stats.averageCombinedScore}</span></p>
                   {stats.bestScore && (
@@ -265,51 +293,76 @@ export default function StatsPage() {
                   )}
                 </div>
               </div>
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <button
-                  onClick={clearAllData}
-                  className="px-6 py-3 text-base font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-lg transition-colors shadow-lg"
+              <div className="flex gap-4">
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Clear All Progress
-                </button>
-              </motion.div>
+                  <button
+                    onClick={toggleDummyData}
+                    className="px-6 py-3 text-base font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-lg"
+                  >
+                    {useDummyData ? 'Use Real Data' : 'Use Dummy Data'}
+                  </button>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <button
+                    onClick={clearAllData}
+                    className="px-6 py-3 text-base font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-lg transition-colors shadow-lg"
+                  >
+                    Clear All Progress
+                  </button>
+                </motion.div>
+              </div>
             </div>
           </motion.div>
 
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="space-y-12"
-          >
-            {/* Core Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <motion.div variants={item} className="p-8 rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors">
-                <div className="text-lg text-foreground mb-3">Challenges Completed</div>
-                <div className="text-4xl font-bold text-foreground">{stats.totalChallenges}</div>
-              </motion.div>
-              <motion.div variants={item} className="p-8 rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors">
-                <div className="text-lg text-foreground mb-3">Avg Character Score</div>
-                <div className="text-4xl font-bold text-primary">{stats.averageCharacterScore}</div>
-              </motion.div>
-              <motion.div variants={item} className="p-8 rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors">
-                <div className="text-lg text-foreground mb-3">Avg Visual Score</div>
-                <div className="text-4xl font-bold text-accent">{stats.averageVisualScore}</div>
-              </motion.div>
-              <motion.div variants={item} className="p-8 rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors">
-                <div className="text-lg text-foreground mb-3">Avg Combined Score</div>
-                <div className="text-4xl font-bold text-foreground">{stats.averageCombinedScore}</div>
-              </motion.div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-b border-border">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="p-8 border-r border-b md:border-b-0 border-border"
+            >
+              <div className="text-lg text-foreground mb-3">Challenges Completed</div>
+              <div className="text-4xl font-bold text-foreground">{stats.totalChallenges}</div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="p-8 lg:border-r border-b md:border-b-0 border-border"
+            >
+              <div className="text-lg text-foreground mb-3">Avg Character Score</div>
+              <div className="text-4xl font-bold text-primary">{stats.averageCharacterScore}</div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="p-8 border-r border-b lg:border-b-0 border-border"
+            >
+              <div className="text-lg text-foreground mb-3">Avg Visual Score</div>
+              <div className="text-4xl font-bold text-accent">{stats.averageVisualScore}</div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="p-8"
+            >
+              <div className="text-lg text-foreground mb-3">Avg Combined Score</div>
+              <div className="text-4xl font-bold text-foreground">{stats.averageCombinedScore}</div>
+            </motion.div>
+          </div>
 
-            {/* Progress Over Time */}
-            <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="p-8 rounded-2xl bg-card border border-border">
-                <h2 className="text-2xl font-bold mb-8 text-foreground">Score Progression</h2>
-                <div className="h-[400px]">
+          <div className="grid grid-cols-1 xl:grid-cols-2 border-b border-border">
+            {stats.timeBasedProgress.length > 0 && (
+              <div className="border-r border-border">
+                <ChartContainer title="Score Progression" chartId="progression">
                   <ResponsiveLine
                     data={stats.timeBasedProgress}
                     theme={chartTheme}
@@ -327,7 +380,13 @@ export default function StatsPage() {
                     areaOpacity={0.1}
                     useMesh={true}
                     axisBottom={{
-                      tickRotation: -45
+                      tickRotation: -45,
+                      legend: 'Date',
+                      legendOffset: 40
+                    }}
+                    axisLeft={{
+                      legend: 'Score',
+                      legendOffset: -40
                     }}
                     legends={[
                       {
@@ -346,12 +405,13 @@ export default function StatsPage() {
                       }
                     ]}
                   />
-                </div>
+                </ChartContainer>
               </div>
+            )}
 
-              <div className="p-8 rounded-2xl bg-card border border-border">
-                <h2 className="text-2xl font-bold mb-8 text-foreground">Performance Metrics</h2>
-                <div className="h-[400px]">
+            {stats.performanceMetrics.length > 0 && (
+              <div>
+                <ChartContainer title="Performance Metrics" chartId="performance">
                   <ResponsiveRadar
                     data={stats.performanceMetrics}
                     theme={chartTheme}
@@ -377,14 +437,14 @@ export default function StatsPage() {
                     blendMode="multiply"
                     animate={true}
                   />
-                </div>
+                </ChartContainer>
               </div>
-            </motion.div>
+            )}
+          </div>
 
-            {/* Score Distribution */}
-            <motion.div variants={item} className="p-8 rounded-2xl bg-card border border-border">
-              <h2 className="text-2xl font-bold mb-8 text-foreground">Score Distribution</h2>
-              <div className="h-[400px]">
+          {stats.scoreDistribution.length > 0 && (
+            <div className="border-b border-border">
+              <ChartContainer title="Score Distribution" chartId="distribution">
                 <ResponsiveBar
                   data={stats.scoreDistribution}
                   theme={chartTheme}
@@ -419,23 +479,27 @@ export default function StatsPage() {
                   labelTextColor="hsl(var(--background))"
                   animate={true}
                 />
-              </div>
-            </motion.div>
+              </ChartContainer>
+            </div>
+          )}
 
-            {/* Optimization Metrics */}
-            <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {stats.optimizationMetrics.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3">
               {stats.optimizationMetrics.map((metric, index) => (
-                <div 
-                  key={index} 
-                  className="p-8 rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors"
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`p-8 ${index < stats.optimizationMetrics.length - 1 ? 'border-r border-border' : ''}`}
                 >
                   <div className="text-lg text-foreground mb-2">{metric.metric}</div>
                   <div className="text-4xl font-bold text-foreground mb-4">{Math.round(metric.value)}</div>
                   <div className="text-sm text-muted-foreground">{metric.description}</div>
-                </div>
+                </motion.div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          )}
         </div>
       </div>
     </PageLayout>
