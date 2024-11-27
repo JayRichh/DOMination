@@ -12,16 +12,30 @@ const VISUAL_SCORE_WEIGHT = 0.6; // 60% weight for visual accuracy score
  * @returns Score between 0-100
  */
 export function calculateCharacterScore(actualLength: number, optimalLength: number): number {
+  // Guard against invalid inputs
+  if (optimalLength <= 0) {
+    throw new Error('Optimal length must be greater than 0');
+  }
+  if (actualLength < 0) {
+    throw new Error('Actual length cannot be negative');
+  }
+
   // If actual length is less than or equal to optimal, give bonus points
   // Maximum bonus is now 5 points to avoid over-rewarding extremely short solutions
   if (actualLength <= optimalLength) {
-    const bonusPoints = Math.min(5, ((optimalLength - actualLength) / optimalLength) * 100);
-    return Math.min(100, 100 + bonusPoints);
+    // Ensure type safety by explicitly handling division by zero
+    const lengthDifference: number = optimalLength - actualLength;
+    const lengthRatio: number = lengthDifference / optimalLength;
+    const rawBonusPoints: number = lengthRatio * 100;
+    const cappedBonusPoints: number = Math.min(5, rawBonusPoints);
+    return Math.min(100, 100 + cappedBonusPoints);
   }
   
   // Otherwise, deduct points based on how much longer the solution is
   // Using sqrt to make the penalty less aggressive for slightly longer solutions
-  const penalty = Math.sqrt((actualLength - optimalLength) / optimalLength) * 100;
+  const lengthDifference: number = actualLength - optimalLength;
+  const lengthRatio: number = lengthDifference / optimalLength;
+  const penalty: number = Math.sqrt(lengthRatio) * 100;
   return Math.max(0, 100 - penalty);
 }
 
@@ -79,6 +93,84 @@ export function calculateCombinedScore(characterScore: number, visualScore: numb
 }
 
 /**
+ * Clean and normalize CSS content by removing comments and unnecessary whitespace
+ * @param css Raw CSS content
+ * @returns Cleaned CSS content
+ */
+function cleanCssContent(css: string): string {
+  if (typeof css !== 'string') {
+    throw new Error('CSS content must be a string');
+  }
+
+  return css
+    // Remove CSS comments (both single and multi-line)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    // Remove single-line comments if any
+    .replace(/\/\/.*/g, '')
+    // Normalize whitespace
+    .replace(/\s+/g, ' ')
+    // Remove whitespace around special characters
+    .replace(/\s*([{}:;,])\s*/g, '$1')
+    // Remove trailing semicolons in blocks
+    .replace(/;}/g, '}')
+    // Remove empty blocks
+    .replace(/[^{}]+\{\}/g, '')
+    // Remove leading/trailing whitespace
+    .trim();
+}
+
+/**
+ * Clean HTML content by removing comments and unnecessary whitespace
+ * @param html Raw HTML content
+ * @returns Cleaned HTML content
+ */
+function cleanHtmlContent(html: string): string {
+  if (typeof html !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
+  return html
+    // Remove HTML comments
+    .replace(/<!--[\s\S]*?-->/g, '')
+    // Remove whitespace between tags
+    .replace(/>\s+</g, '><')
+    // Normalize whitespace in text content
+    .replace(/\s+/g, ' ')
+    // Remove leading/trailing whitespace
+    .trim();
+}
+
+/**
+ * Extract and clean CSS content from a solution, excluding HTML
+ * @param solution Full solution including HTML and CSS
+ * @returns CSS-only content, cleaned and normalized
+ */
+function extractCssContent(solution: string): string {
+  if (typeof solution !== 'string') {
+    throw new Error('Solution must be a string');
+  }
+
+  try {
+    // First, remove all HTML comments to avoid interference with CSS extraction
+    const noHtmlComments = cleanHtmlContent(solution);
+
+    // Extract content between <style> tags if present
+    const styleMatch = noHtmlComments.match(/<style[^>]*>([\s\S]*?)<\/style>/);
+    const cssContent = styleMatch ? styleMatch[1] : solution;
+
+    // Remove any remaining HTML tags
+    const noHtml = cssContent.replace(/<[^>]*>/g, '');
+
+    // Clean and normalize the CSS content
+    return cleanCssContent(noHtml);
+  } catch (error) {
+    console.error('Error processing CSS content:', error);
+    // Return empty string or throw error based on your error handling strategy
+    return '';
+  }
+}
+
+/**
  * Generate a complete score object for a challenge attempt
  */
 export async function generateChallengeScore(
@@ -87,20 +179,34 @@ export async function generateChallengeScore(
   userPreview: HTMLElement,
   targetPreview: HTMLElement
 ): Promise<ChallengeScore> {
-  // Normalize CSS by removing unnecessary whitespace
-  const normalizedCss = userCss.trim().replace(/\s+/g, ' ');
-  const characterCount = normalizedCss.length;
-  const characterScore = calculateCharacterScore(characterCount, optimalLength);
-  const pixelAccuracy = await calculateVisualScore(userPreview, targetPreview);
-  const visualScore = pixelAccuracy; // Direct mapping as it's already 0-100
-  
-  return {
-    characterScore,
-    visualScore,
-    combinedScore: calculateCombinedScore(characterScore, visualScore),
-    characterCount,
-    pixelAccuracy,
-    timestamp: new Date().toISOString(),
-    css: normalizedCss // Store normalized CSS
-  };
+  if (!userCss || !optimalLength || !userPreview || !targetPreview) {
+    throw new Error('Missing required parameters for score generation');
+  }
+
+  try {
+    // Extract and normalize CSS content only
+    const cssContent = extractCssContent(userCss);
+    
+    // Get character count excluding comments and unnecessary whitespace
+    const characterCount = cssContent.length;
+    
+    // Calculate scores
+    const characterScore = calculateCharacterScore(characterCount, optimalLength);
+    const pixelAccuracy = await calculateVisualScore(userPreview, targetPreview);
+    const visualScore = pixelAccuracy;
+    const combinedScore = calculateCombinedScore(characterScore, visualScore);
+
+    return {
+      characterScore,
+      visualScore,
+      combinedScore,
+      characterCount,
+      pixelAccuracy,
+      css: userCss, // Store original CSS for reference
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error generating challenge score:', error);
+    throw new Error('Failed to generate challenge score');
+  }
 }

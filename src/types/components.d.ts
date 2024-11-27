@@ -13,9 +13,16 @@ export interface PreviewPaneProps {
   backgroundColor: string;
 }
 
+export interface SliderProps {
+  userOutput: ReactNode;
+  targetOutput: ReactNode;
+  xrayMode: boolean;
+}
+
 export interface ComparisonSliderProps {
   userOutput: ReactNode;
   targetOutput: ReactNode;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 export interface GradientBackgroundProps {
