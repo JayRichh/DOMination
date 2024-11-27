@@ -3,15 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getChallengeState, getAllChallengeStates } from "~/utils/challengeState";
-import type { Challenge } from "~/types/challenge";
+import type { Challenge, ChallengeScore } from "~/types/challenge";
 
 function ChallengeCard({ challenge }: { challenge: Challenge }) {
-  const [completionState, setCompletionState] = useState<{ score: number } | null>(null);
+  const [completionState, setCompletionState] = useState<{ characterScore: number; visualScore: number; combinedScore: number } | null>(null);
 
   useEffect(() => {
     const state = getChallengeState(challenge.id);
-    if (state) {
-      setCompletionState(state);
+    if (state?.bestScore) {
+      setCompletionState({
+        characterScore: state.bestScore.characterScore,
+        visualScore: state.bestScore.visualScore,
+        combinedScore: state.bestScore.combinedScore,
+      });
     }
   }, [challenge.id]);
 
@@ -26,11 +30,21 @@ function ChallengeCard({ challenge }: { challenge: Challenge }) {
       {/* Completion Badge */}
       {completionState && (
         <>
-          <div className="absolute top-4 right-4 z-10 flex items-center gap-2 px-3 py-1 rounded-full bg-primary/90 text-primary-foreground text-sm font-medium">
-            <span>{completionState.score}</span>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-3 px-3 py-1 rounded-full bg-primary/90 text-primary-foreground text-sm font-medium">
+            <div className="flex flex-col items-center">
+              <span className="text-xs opacity-80">Chars</span>
+              <span>{completionState.characterScore.toFixed(1)}</span>
+            </div>
+            <div className="w-px h-8 bg-white/20" />
+            <div className="flex flex-col items-center">
+              <span className="text-xs opacity-80">Visual</span>
+              <span>{completionState.visualScore.toFixed(1)}</span>
+            </div>
+            <div className="w-px h-8 bg-white/20" />
+            <div className="flex flex-col items-center">
+              <span className="text-xs opacity-80">Total</span>
+              <span>{completionState.combinedScore.toFixed(1)}</span>
+            </div>
           </div>
           <div className="absolute inset-0 ring-2 ring-primary/50 rounded-xl pointer-events-none" />
         </>
@@ -128,12 +142,14 @@ function ChallengeCard({ challenge }: { challenge: Challenge }) {
 export function ChallengeList({ challenges }: { challenges: Challenge[] }) {
   const [showCompleted, setShowCompleted] = useState(false);
   const [filteredChallenges, setFilteredChallenges] = useState(challenges);
-  const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const states = getAllChallengeStates();
-    const completedIds = new Set(Object.keys(states));
-    setCompletedChallenges(completedIds);
+    const completedIds = new Set(
+      Object.entries(states)
+        .filter(([_, state]) => state.bestScore !== undefined)
+        .map(([id]) => id)
+    );
 
     if (showCompleted) {
       setFilteredChallenges(challenges.filter(c => completedIds.has(c.id)));
@@ -164,7 +180,7 @@ export function ChallengeList({ challenges }: { challenges: Challenge[] }) {
                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
             }`}
           >
-            Completed ({completedChallenges.size})
+            Completed ({Object.keys(getAllChallengeStates()).filter(id => getAllChallengeStates()[id].bestScore !== undefined).length})
           </button>
         </div>
       </div>

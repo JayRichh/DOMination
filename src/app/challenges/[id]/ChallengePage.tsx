@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Editor } from "~/components/Editor";
 import { PreviewPane } from "~/components/PreviewPane";
 import { ComparisonSlider } from "~/components/ComparisonSlider";
-import type { Challenge } from "~/types/challenge";
-import { saveChallengeState, getChallengeState } from "~/utils/challengeState";
+import type { Challenge, ChallengeScore } from "~/types/challenge";
+import { saveChallengeState, getChallengeState, updateChallengeWithScore } from "~/utils/challengeState";
+import { generateChallengeScore } from "~/utils/scoring";
 
 interface ChallengePageProps {
   challenge: Challenge;
@@ -29,15 +30,19 @@ const getStarterCSS = (challenge: Challenge) => `/* ${challenge.title} */
 
 export function ChallengePage({ challenge }: ChallengePageProps) {
   const [userCss, setUserCss] = useState("");
-  const [score, setScore] = useState<number | null>(null);
+  const [score, setScore] = useState<ChallengeScore | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const userPreviewRef = useRef<HTMLDivElement>(null);
+  const targetPreviewRef = useRef<HTMLDivElement>(null);
 
   // Initialize CSS and load saved state on mount
   useEffect(() => {
     setUserCss(getStarterCSS(challenge));
     const savedState = getChallengeState(challenge.id);
-    if (savedState) {
-      setScore(savedState.score);
+    if (savedState?.lastAttempt) {
+      setScore(savedState.lastAttempt);
+      setUserCss(savedState.lastAttempt.css || getStarterCSS(challenge));
     }
     setMounted(true);
   }, [challenge]);
@@ -47,19 +52,27 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
     setScore(null);
   }, []);
 
-  const handleSubmit = useCallback(() => {
-    const codeEfficiencyScore = Math.max(
-      0,
-      100 - (userCss.length - challenge.optimalCodeLength) / 2
-    );
-    const finalScore = Math.round(codeEfficiencyScore);
-    setScore(finalScore);
-    saveChallengeState(challenge.id, finalScore);
+  const handleSubmit = useCallback(async () => {
+    if (!userPreviewRef.current || !targetPreviewRef.current) return;
+    setError(null);
+
+    try {
+      const newScore = await generateChallengeScore(
+        userCss,
+        challenge.optimalCodeLength,
+        userPreviewRef.current,
+        targetPreviewRef.current
+      );
+
+      setScore(newScore);
+      updateChallengeWithScore(challenge.id, newScore);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred while saving the score');
+      console.error('Score update error:', err);
+    }
   }, [userCss, challenge.optimalCodeLength, challenge.id]);
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
     <div className="container max-w-7xl mx-auto grid grid-rows-[auto_1fr] h-[calc((100vh-4rem))]">
@@ -73,15 +86,45 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             <p className="text-muted-foreground">
               {challenge.description}
             </p>
+            {score && (
+              <div className="mt-2 text-sm">
+                <p>Characters: {score.characterCount} ({score.characterScore.toFixed(1)})</p>
+                <p>Visual Match: {score.pixelAccuracy.toFixed(1)}% ({score.visualScore.toFixed(1)})</p>
+                <p>Total Score: {score.combinedScore.toFixed(1)}</p>
+              </div>
+            )}
+            {error && (
+              <p className="mt-2 text-sm text-red-500">{error}</p>
+            )}
           </div>
 
           <div className="flex items-center gap-6 flex-shrink-0">
-            {score !== null && (
-              <div className="text-center">
-                <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {score}
+            {score && (
+              <div className="flex gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">
+                    {score.characterScore.toFixed(1)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Characters</div>
+                  <div className="text-xs text-muted-foreground">
+                    {score.characterCount}/{challenge.optimalCodeLength}
+                  </div>
                 </div>
-                <div className="text-sm text-muted-foreground">Score</div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-accent">
+                    {score.visualScore.toFixed(1)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Visual</div>
+                  <div className="text-xs text-muted-foreground">
+                    {score.pixelAccuracy.toFixed(2)}% match
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    {score.combinedScore.toFixed(1)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Total</div>
+                </div>
               </div>
             )}
             <button
@@ -125,7 +168,10 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             {/* User Preview */}
             <div className="space-y-2 min-h-0">
               <h3 className="text-sm font-medium text-muted-foreground">Your Output</h3>
-              <div className="h-[calc(100%-2rem)] rounded-lg overflow-hidden shadow-lg">
+              <div 
+                ref={userPreviewRef}
+                className="h-[calc(100%-2rem)] rounded-lg overflow-hidden shadow-lg"
+              >
                 <PreviewPane
                   html={challenge.targetHtml}
                   css={userCss}
@@ -137,7 +183,10 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             {/* Target Preview */}
             <div className="space-y-2 min-h-0">
               <h3 className="text-sm font-medium text-muted-foreground">Target</h3>
-              <div className="h-[calc(100%-2rem)] rounded-lg overflow-hidden shadow-lg">
+              <div 
+                ref={targetPreviewRef}
+                className="h-[calc(100%-2rem)] rounded-lg overflow-hidden shadow-lg"
+              >
                 <PreviewPane
                   html={challenge.targetHtml}
                   css={challenge.targetCss}

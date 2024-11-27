@@ -26,7 +26,6 @@ npm run dev
 ```
   </div>
 
-  <!-- Right Column: Images -->
   <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
     <img src="https://github.com/user-attachments/assets/85d26d56-864a-4abd-b60f-671f9f17cdc9" alt="Project Screenshot 1" style="width: 100%; border-radius: 8px;" />
     <img src="https://github.com/user-attachments/assets/ff41498b-df9e-41fc-8817-532384bb6a31" alt="Project Screenshot 2" style="width: 100%; border-radius: 8px;" />
@@ -90,17 +89,9 @@ src/
 
 ## Features
 
-### UI Components
-
-- **Form Elements with Validation:** Utilizes `react-hook-form` and `zod` for robust form handling and validation.
-- **Data Display:** Includes badges, cards, and tooltips for presenting information effectively.
-- **Layout Components:** Features accordions, modals, and tabs for organized content presentation.
-- **Feedback Mechanisms:** Implements progress bars, spinners, and toast notifications for user feedback.
-- **Visual Effects:** Enhances the UI with gradient backgrounds and smooth animations.
-
 ### Code Editor Integration
 
-- **Monaco Editor:** Provides a powerful code editing experience with syntax highlighting, autocomplete, and real-time error detection.
+- **Monaco Editor:** Provides a clean code editing experience with syntax highlighting, autocomplete, and real-time error detection.
 - **Custom Snippets:** Offers predefined CSS snippets to assist users in writing code efficiently.
 - **Live Syntax Validation:** Highlights syntax errors and provides immediate feedback to users.
 
@@ -111,50 +102,69 @@ src/
 - **Comparison Slider:** Enables users to slide between their output and the target to visually identify differences.
 - **Toggle Difference Highlighting:** Highlights pixel-level differences to help users pinpoint areas for improvement.
 
+
 ### Scoring System
 
-- **Accuracy Calculation:** Compares the user's output with the target using image comparison algorithms to determine pixel-perfect accuracy.
-- **Code Efficiency Scoring:** Rewards users for writing concise and optimized CSS code.
-- **Final Score Composition:** Combines accuracy and efficiency scores to provide a comprehensive final score.
-- **Feedback Messages:** Offers constructive feedback based on the user's performance to encourage improvement.
+The scoring system evaluates solutions based on two main criteria: code efficiency (character count) and visual accuracy. The final score is a weighted combination of these factors:
 
-### Helper Tools for HTML/CSS
+### Character Score (40% of total)
+- Measures code efficiency based on character count compared to the optimal length
+- Character count is normalized by removing unnecessary whitespace
+- Scoring formula:
+  ```
+  If length <= optimal:
+    bonus = min(5, ((optimal - length) / optimal) * 100)
+    score = min(100, 100 + bonus)
+  If length > optimal:
+    penalty = sqrt((length - optimal) / optimal) * 100
+    score = max(0, 100 - penalty)
+  ```
+- Solutions shorter than optimal length receive up to 5 bonus points
+- Penalty for longer solutions uses square root scaling for more balanced scoring
 
-- **CSS Snippets:** Predefined snippets for common CSS properties to assist users in writing code faster.
-- **Property Reference Tooltips:** Provides information about CSS properties when hovered or selected.
-- **Color Picker Integration:** Allows users to select colors directly within the editor.
-- **Live Syntax Validation:** Highlights syntax errors and provides real-time feedback.
+### Visual Score (60% of total)
+- Pixel-by-pixel comparison between your solution and the target
+- Uses advanced DOM snapshot comparison with html2canvas
+- 5-unit tolerance for RGB and alpha channels to handle anti-aliasing
+- Direct percentage mapping: matching pixels / total pixels * 100
+- Score ranges from 0 to 100
 
-### Responsive and Accessible Design
+### Combined Score
+Final score is calculated as:
+```
+combinedScore = (characterScore * 0.4 + visualScore * 0.6).toFixed(2)
+```
 
-- **Tailwind CSS:** Ensures a consistent and responsive layout across different devices and screen sizes.
-- **Accessibility Features:** Keyboard navigable components, appropriate ARIA labels, and screen-reader friendly elements.
+This scoring system rewards:
+- Clean, efficient code that meets the optimal character count
+- Pixel-perfect visual accuracy
+- Balance between code golf and visual fidelity
 
-### Data Persistence and State Management
 
-- **Local Storage Integration:** Persists user submissions and progress using `localStorage`.
-- **Custom React Hooks:** Manages state and side effects efficiently with custom hooks like `useLocalStorage`, `useImageComparison`, and `useDebounce`.
+### Data Persistence and Statistics
 
-## Configuration
+- **Local Storage Integration:**
+  - Persists all challenge attempts and scores using `localStorage`
+  - Stores best scores, last attempts, and complete submission history
+  - Each submission includes timestamp, character count, visual score, and actual CSS used
+  
+- **Statistics Dashboard:**
+  - Overall progress tracking with total challenges attempted/completed
+  - Per-challenge performance metrics:
+    - Best combined score achieved
+    - Character count improvement over time
+    - Visual accuracy trends
+    - Historical submission timeline
+  - Detailed attempt history with:
+    - Submission timestamps
+    - Character and visual scores
+    - Code snippets from each attempt
 
-### Next.js
-
-- **App Router Setup:** Utilizes Next.js 15's App Router for improved routing and layout management.
-- **Strict Mode Enabled:** Enforces strict mode for better error handling and performance.
-- **Webpack Optimizations:** Optimized for efficient bundling and canvas performance.
-
-### Tailwind CSS
-
-- **Custom Color Schemes:** Defined using HSL variables for flexibility and consistency.
-- **Dark Mode Support:** Provides an optional dark theme for better user experience.
-- **Custom Animations and Gradients:** Enhances visual appeal with smooth animations and gradient backgrounds.
-- **Container Queries:** Ensures responsive design by adapting components based on container size.
-
-### TypeScript
-
-- **Strict Type Checking:** Enforces type safety and reduces runtime errors.
-- **Path Aliases Configured:** Simplifies import statements with defined path aliases.
-- **Type Definitions:** Includes comprehensive type definitions for challenges, submissions, and general utilities.
+- **Custom React Hooks:**
+  - `useLocalStorage`: Manages persistent state with automatic JSON serialization
+  - `useImageComparison`: Handles real-time visual difference calculation
+  - `useDebounce`: Optimizes performance for live preview updates
+  - `useChallengeStats`: Aggregates and calculates performance metrics
 
 ## Available Scripts
 
@@ -165,6 +175,7 @@ npm run start        # Production server
 npm run lint         # ESLint
 npm run format       # Prettier formatting
 ```
+
 
 ## License
 

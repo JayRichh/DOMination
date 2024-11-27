@@ -7,239 +7,168 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar
 } from 'recharts';
-
-interface StatsData {
-  totalChallenges: number;
-  completedChallenges: number;
-  averageScore: number;
-  bestScore: number;
-  recentCompletions: Array<{id: string; score: number; completedAt: string}>;
-  scoreHistory: Array<{date: string; score: number}>;
-  completionsByDay: Array<{date: string; count: number}>;
-  scoreDistribution: Array<{range: string; count: number}>;
-}
+import type { ChallengeScore, ChallengeState } from '~/types/challenge';
 
 export default function StatsPage() {
-  const [stats, setStats] = useState<StatsData>({
+  const [stats, setStats] = useState<{
+    totalChallenges: number;
+    averageCharacterScore: number;
+    averageVisualScore: number;
+    averageCombinedScore: number;
+    bestScore: ChallengeScore | null;
+    recentScores: ChallengeScore[];
+    scoreDistribution: {
+      range: string;
+      count: number;
+    }[];
+  }>({
     totalChallenges: 0,
-    completedChallenges: 0,
-    averageScore: 0,
-    bestScore: 0,
-    recentCompletions: [],
-    scoreHistory: [],
-    completionsByDay: [],
+    averageCharacterScore: 0,
+    averageVisualScore: 0,
+    averageCombinedScore: 0,
+    bestScore: null,
+    recentScores: [],
     scoreDistribution: [],
   });
 
   useEffect(() => {
     const challengeStates = getAllChallengeStates();
-    const completions = Object.entries(challengeStates).map(([id, state]) => ({
-      id,
-      score: state.score,
-      completedAt: state.completedAt,
+    const scores = Object.values(challengeStates)
+      .filter((state): state is ChallengeState => 
+        state !== null && state.bestScore !== undefined
+      )
+      .map(state => state.bestScore!);
+
+    if (scores.length === 0) return;
+
+    // Calculate averages
+    const avgCharScore = scores.reduce((sum, score) => sum + score.characterScore, 0) / scores.length;
+    const avgVisualScore = scores.reduce((sum, score) => sum + score.visualScore, 0) / scores.length;
+    const avgCombinedScore = scores.reduce((sum, score) => sum + score.combinedScore, 0) / scores.length;
+
+    // Find best score
+    const bestScore = scores.reduce((best, current) => 
+      !best || current.combinedScore > best.combinedScore ? current : best
+    , scores[0]);
+
+    // Get recent scores
+    const recentScores = [...scores].sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    ).slice(0, 10);
+
+    // Calculate score distribution
+    const distribution = Array.from({ length: 10 }, (_, i) => ({
+      range: `${i * 10}-${(i + 1) * 10}`,
+      count: scores.filter(s => s.combinedScore >= i * 10 && s.combinedScore < (i + 1) * 10).length
     }));
 
-    // Process data for charts
-    const scoreHistory = processScoreHistory(completions);
-    const completionsByDay = processCompletionsByDay(completions);
-    const scoreDistribution = processScoreDistribution(completions);
-
     setStats({
-      totalChallenges: 100, // Replace with actual total
-      completedChallenges: completions.length,
-      averageScore: calculateAverage(completions.map(c => c.score)),
-      bestScore: Math.max(...completions.map(c => c.score), 0),
-      recentCompletions: completions.sort((a, b) => 
-        new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
-      ).slice(0, 5),
-      scoreHistory,
-      completionsByDay,
-      scoreDistribution,
+      totalChallenges: scores.length,
+      averageCharacterScore: Number(avgCharScore.toFixed(2)),
+      averageVisualScore: Number(avgVisualScore.toFixed(2)),
+      averageCombinedScore: Number(avgCombinedScore.toFixed(2)),
+      bestScore,
+      recentScores,
+      scoreDistribution: distribution,
     });
   }, []);
 
   return (
-    <div className="relative min-h-screen">
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
-      
-      <div className="relative max-w-7xl mx-auto px-6 py-12">
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
-            Your Progress
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
-            Track your CSS Battle journey with detailed statistics and insights.
-          </p>
+    <div className="container max-w-7xl mx-auto py-12 px-6">
+      <h1 className="text-4xl font-bold mb-8">Your Stats</h1>
+
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="p-6 rounded-xl bg-card">
+          <div className="text-sm text-muted-foreground mb-2">Challenges Completed</div>
+          <div className="text-3xl font-bold">{stats.totalChallenges}</div>
         </div>
-
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatsCard title="Total Challenges" value={stats.totalChallenges.toString()} />
-          <StatsCard title="Completed" value={stats.completedChallenges.toString()} />
-          <StatsCard title="Average Score" value={`${stats.averageScore.toFixed(1)}%`} />
-          <StatsCard title="Best Score" value={`${stats.bestScore.toFixed(1)}%`} />
+        <div className="p-6 rounded-xl bg-card">
+          <div className="text-sm text-muted-foreground mb-2">Avg Character Score</div>
+          <div className="text-3xl font-bold text-primary">{stats.averageCharacterScore}</div>
         </div>
-
-        {/* Charts Section */}
-        <div className="space-y-12">
-          {/* Score Trend */}
-          <div className="p-6 rounded-lg border border-border bg-card">
-            <h2 className="text-2xl font-bold mb-6">Score History</h2>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={stats.scoreHistory}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="date" className="text-muted-foreground" />
-                  <YAxis className="text-muted-foreground" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                    }}
-                    labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="score" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Completions by Day */}
-          <div className="p-6 rounded-lg border border-border bg-card">
-            <h2 className="text-2xl font-bold mb-6">Daily Completions</h2>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.completionsByDay}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="date" className="text-muted-foreground" />
-                  <YAxis className="text-muted-foreground" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                    }}
-                    labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="count"
-                    stroke="hsl(var(--primary))"
-                    fill="hsl(var(--primary))"
-                    fillOpacity={0.2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Score Distribution */}
-          <div className="p-6 rounded-lg border border-border bg-card">
-            <h2 className="text-2xl font-bold mb-6">Score Distribution</h2>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.scoreDistribution}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="range" className="text-muted-foreground" />
-                  <YAxis className="text-muted-foreground" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                    }}
-                    labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <Bar 
-                    dataKey="count" 
-                    fill="hsl(var(--primary))"
-                    fillOpacity={0.8}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+        <div className="p-6 rounded-xl bg-card">
+          <div className="text-sm text-muted-foreground mb-2">Avg Visual Score</div>
+          <div className="text-3xl font-bold text-accent">{stats.averageVisualScore}</div>
         </div>
-
-        {/* Recent Completions */}
-        <div className="mt-12 space-y-6">
-          <h2 className="text-2xl font-bold">Recent Completions</h2>
-          <div className="grid gap-4">
-            {stats.recentCompletions.map((completion) => (
-              <div
-                key={completion.id}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-card/80 transition-colors"
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium">Challenge #{completion.id}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Completed {new Date(completion.completedAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{completion.score.toFixed(2)}</p>
-                    <p className="text-sm text-muted-foreground">Score</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="p-6 rounded-xl bg-card">
+          <div className="text-sm text-muted-foreground mb-2">Avg Combined Score</div>
+          <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            {stats.averageCombinedScore}
           </div>
         </div>
       </div>
+
+      {/* Score History Chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div className="p-6 rounded-xl bg-card">
+          <h2 className="text-xl font-semibold mb-6">Recent Scores</h2>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={stats.recentScores.slice().reverse()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="timestamp" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="characterScore" stroke="#22c55e" name="Character" />
+                <Line type="monotone" dataKey="visualScore" stroke="#3b82f6" name="Visual" />
+                <Line type="monotone" dataKey="combinedScore" stroke="#8b5cf6" name="Combined" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="p-6 rounded-xl bg-card">
+          <h2 className="text-xl font-semibold mb-6">Score Distribution</h2>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats.scoreDistribution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="range" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#8b5cf6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Best Score */}
+      {stats.bestScore && (
+        <div className="p-6 rounded-xl bg-card">
+          <h2 className="text-xl font-semibold mb-6">Best Performance</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <div className="text-sm text-muted-foreground mb-2">Character Score</div>
+              <div className="text-3xl font-bold text-primary">
+                {stats.bestScore.characterScore.toFixed(1)}
+              </div>
+              <div className="text-sm text-muted-foreground mt-1">
+                {stats.bestScore.characterCount} characters
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground mb-2">Visual Score</div>
+              <div className="text-3xl font-bold text-accent">
+                {stats.bestScore.visualScore.toFixed(1)}
+              </div>
+              <div className="text-sm text-muted-foreground mt-1">
+                {stats.bestScore.pixelAccuracy.toFixed(2)}% match
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground mb-2">Combined Score</div>
+              <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {stats.bestScore.combinedScore.toFixed(1)}
+              </div>
+              <div className="text-sm text-muted-foreground mt-1">
+                {new Date(stats.bestScore.timestamp).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
-
-function StatsCard({ title, value }: { title: string; value: string }) {
-  return (
-    <div className="p-6 rounded-lg border border-border bg-card hover:bg-card/80 transition-colors">
-      <h3 className="text-sm font-medium text-muted-foreground mb-2">{title}</h3>
-      <p className="text-2xl font-bold">{value}</p>
-    </div>
-  );
-}
-
-// Data processing helpers
-function processScoreHistory(completions: Array<{score: number; completedAt: string}>) {
-  return completions
-    .sort((a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime())
-    .map(c => ({
-      date: new Date(c.completedAt).toLocaleDateString(),
-      score: c.score,
-    }));
-}
-
-function processCompletionsByDay(completions: Array<{completedAt: string}>) {
-  const counts = completions.reduce((acc, curr) => {
-    const date = new Date(curr.completedAt).toLocaleDateString();
-    acc[date] = (acc[date] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  return Object.entries(counts).map(([date, count]) => ({ date, count }));
-}
-
-function processScoreDistribution(completions: Array<{score: number}>) {
-  const ranges = ['0-20', '21-40', '41-60', '61-80', '81-100'];
-  const distribution = completions.reduce((acc, curr) => {
-    const rangeIndex = Math.floor(curr.score / 20);
-    const range = ranges[rangeIndex];
-    acc[range] = (acc[range] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  return ranges.map(range => ({
-    range,
-    count: distribution[range] || 0,
-  }));
-}
-
-function calculateAverage(numbers: number[]) {
-  return numbers.length > 0
-    ? numbers.reduce((a, b) => a + b, 0) / numbers.length
-    : 0;
 }
