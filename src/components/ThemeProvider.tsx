@@ -20,9 +20,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme(savedTheme);
       document.documentElement.className = savedTheme;
     } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-      document.documentElement.className = prefersDark ? 'dark' : 'light';
+      // Set dark theme as default regardless of system preference
+      setTheme('dark');
+      localStorage.setItem('theme', 'dark');
+      document.documentElement.className = 'dark';
     }
   }, []);
 

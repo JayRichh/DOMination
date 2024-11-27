@@ -52,10 +52,10 @@ const alignClasses = {
 
 const gradientClasses: Record<TextGradient, string> = {
   none: "",
-  blue: "bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent",
-  purple: "bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent",
-  orange: "bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent",
-  primary: "bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent",
+  blue: "bg-gradient-to-r from-blue-400 to-cyan-400 text-transparent bg-clip-text [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)]",
+  purple: "bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)]",
+  orange: "bg-gradient-to-r from-orange-400 to-red-400 text-transparent bg-clip-text [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)]",
+  primary: "bg-gradient-to-r from-primary/90 to-accent/90 text-transparent bg-clip-text [text-shadow:_0_1px_1px_rgb(0_0_0_/_40%)]",
 };
 
 export const Text = forwardRef<HTMLDivElement, TextProps>(
