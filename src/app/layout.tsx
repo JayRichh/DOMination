@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -8,14 +9,6 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: "CSS Battle",
-  description: "Test and improve your CSS skills by recreating targets with code",
-  icons: {
-    icon: '/favicon.ico',
-  },
-};
-
 export default function RootLayout({
   children,
 }: {
@@ -23,17 +16,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-background text-foreground`}>
         <ThemeProvider>
           {/* Navigation */}
-          <nav className="sticky top-0 z-50 h-16 border-b border-border bg-background/80 backdrop-blur-xl">
-            <div className="max-w-7xl mx-auto px-6 h-full">
+          <nav className="sticky top-0 z-50 h-20 border-b border-border bg-background/90 backdrop-blur-lg shadow-sm">
+            <div className="max-w-7xl mx-auto px-8 h-full">
               <div className="flex h-full items-center justify-between">
                 {/* Left group - Logo and About */}
-                <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-8">
                   <Link 
                     href="/"
-                    className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+                    className="text-2xl font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity"
                   >
                     CSS Battle
                   </Link>
@@ -46,24 +39,30 @@ export default function RootLayout({
                 </div>
 
                 {/* Center group - Main navigation */}
-                <div className="flex items-center space-x-6">
+                <div className="hidden md:flex items-center space-x-8">
                   <Link
                     href="/challenges"
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Challenges
                   </Link>
+                  <Link
+                    href="/leaderboard"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Leaderboard
+                  </Link>
                 </div>
 
                 {/* Right group - Stats with profile icon and theme toggle */}
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-6">
                   <ThemeToggle />
                   <Link
                     href="/stats"
-                    className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-accent/10 transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent/10 transition-colors"
                   >
                     <svg 
-                      className="w-4 h-4 text-muted-foreground" 
+                      className="w-5 h-5 text-muted-foreground" 
                       fill="none" 
                       viewBox="0 0 24 24" 
                       stroke="currentColor"
@@ -84,7 +83,7 @@ export default function RootLayout({
             </div>
           </nav>
 
-          <main className="min-h-[calc(100vh-4rem)]">
+          <main className="min-h-[calc(100vh-5rem)]">
             {children}
           </main>
         </ThemeProvider>
