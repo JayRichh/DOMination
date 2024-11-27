@@ -92,7 +92,7 @@ export default function StatsPage() {
   const clearAllData = () => {
     if (window.confirm('Are you sure you want to clear all your progress? This action cannot be undone.')) {
       localStorage.removeItem('cssbattle_progress');
-      loadStats(); // Reload stats to show empty state
+      window.location.reload();
     }
   };
 
