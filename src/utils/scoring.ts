@@ -67,20 +67,21 @@ export async function calculateVisualScore(
   let matchingPixels = 0;
   const totalPixels = width * height;
   
-  // Compare each pixel with a small tolerance for anti-aliasing
+  // Compare each pixel with a stricter tolerance for anti-aliasing
   for (let i = 0; i < userImageData.data.length; i += 4) {
     const isMatch = 
-      Math.abs(userImageData.data[i] - targetImageData.data[i]) <= 5 && // R
-      Math.abs(userImageData.data[i + 1] - targetImageData.data[i + 1]) <= 5 && // G
-      Math.abs(userImageData.data[i + 2] - targetImageData.data[i + 2]) <= 5 && // B
-      Math.abs(userImageData.data[i + 3] - targetImageData.data[i + 3]) <= 5;   // A
+      Math.abs(userImageData.data[i] - targetImageData.data[i]) <= 2 && // R
+      Math.abs(userImageData.data[i + 1] - targetImageData.data[i + 1]) <= 2 && // G
+      Math.abs(userImageData.data[i + 2] - targetImageData.data[i + 2]) <= 2 && // B
+      Math.abs(userImageData.data[i + 3] - targetImageData.data[i + 3]) <= 2;   // A
     
     if (isMatch) matchingPixels++;
   }
   
-  // Calculate accuracy to 2 decimal places
+  // Calculate accuracy to 2 decimal places with a minimum threshold
   const accuracy = Number(((matchingPixels / totalPixels) * 100).toFixed(2));
-  return accuracy;
+  // If accuracy is below 20%, return 0 to indicate a significant mismatch
+  return accuracy < 20 ? 0 : accuracy;
 }
 
 /**

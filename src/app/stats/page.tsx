@@ -9,19 +9,25 @@ import {
 } from 'recharts';
 import type { ChallengeScore, ChallengeState } from '~/types/challenge';
 
+interface ScoreWithId extends ChallengeScore {
+  challengeId: string;
+}
+
+interface StatsData {
+  totalChallenges: number;
+  averageCharacterScore: number;
+  averageVisualScore: number;
+  averageCombinedScore: number;
+  bestScore: ScoreWithId | null;
+  recentScores: ScoreWithId[];
+  scoreDistribution: {
+    range: string;
+    count: number;
+  }[];
+}
+
 export default function StatsPage() {
-  const [stats, setStats] = useState<{
-    totalChallenges: number;
-    averageCharacterScore: number;
-    averageVisualScore: number;
-    averageCombinedScore: number;
-    bestScore: ChallengeScore | null;
-    recentScores: ChallengeScore[];
-    scoreDistribution: {
-      range: string;
-      count: number;
-    }[];
-  }>({
+  const [stats, setStats] = useState<StatsData>({
     totalChallenges: 0,
     averageCharacterScore: 0,
     averageVisualScore: 0,
@@ -31,39 +37,45 @@ export default function StatsPage() {
     scoreDistribution: [],
   });
 
-  useEffect(() => {
+  const loadStats = () => {
     const challengeStates = getAllChallengeStates();
-    const scores = Object.values(challengeStates)
-      .filter((state): state is ChallengeState => 
-        state !== null && state.bestScore !== undefined
-      )
-      .map(state => state.bestScore!);
+    
+    // Convert challenge states to scores with IDs
+    const scoresWithIds = Object.entries(challengeStates)
+      .filter((entry): entry is [string, ChallengeState] => {
+        const state = entry[1];
+        return state !== null && typeof state === 'object' && state.bestScore !== undefined;
+      })
+      .map(([id, state]) => ({
+        ...state.bestScore!,
+        challengeId: id
+      }));
 
-    if (scores.length === 0) return;
+    if (scoresWithIds.length === 0) return;
 
     // Calculate averages
-    const avgCharScore = scores.reduce((sum, score) => sum + score.characterScore, 0) / scores.length;
-    const avgVisualScore = scores.reduce((sum, score) => sum + score.visualScore, 0) / scores.length;
-    const avgCombinedScore = scores.reduce((sum, score) => sum + score.combinedScore, 0) / scores.length;
+    const avgCharScore = scoresWithIds.reduce((sum, score) => sum + score.characterScore, 0) / scoresWithIds.length;
+    const avgVisualScore = scoresWithIds.reduce((sum, score) => sum + score.visualScore, 0) / scoresWithIds.length;
+    const avgCombinedScore = scoresWithIds.reduce((sum, score) => sum + score.combinedScore, 0) / scoresWithIds.length;
 
     // Find best score
-    const bestScore = scores.reduce((best, current) => 
+    const bestScore = scoresWithIds.reduce((best, current) => 
       !best || current.combinedScore > best.combinedScore ? current : best
-    , scores[0]);
+    , scoresWithIds[0]);
 
     // Get recent scores
-    const recentScores = [...scores].sort((a, b) => 
+    const recentScores = [...scoresWithIds].sort((a, b) => 
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     ).slice(0, 10);
 
     // Calculate score distribution
     const distribution = Array.from({ length: 10 }, (_, i) => ({
       range: `${i * 10}-${(i + 1) * 10}`,
-      count: scores.filter(s => s.combinedScore >= i * 10 && s.combinedScore < (i + 1) * 10).length
+      count: scoresWithIds.filter(s => s.combinedScore >= i * 10 && s.combinedScore < (i + 1) * 10).length
     }));
 
     setStats({
-      totalChallenges: scores.length,
+      totalChallenges: scoresWithIds.length,
       averageCharacterScore: Number(avgCharScore.toFixed(2)),
       averageVisualScore: Number(avgVisualScore.toFixed(2)),
       averageCombinedScore: Number(avgCombinedScore.toFixed(2)),
@@ -71,13 +83,47 @@ export default function StatsPage() {
       recentScores,
       scoreDistribution: distribution,
     });
+  };
+
+  useEffect(() => {
+    loadStats();
   }, []);
+
+  const clearAllData = () => {
+    if (window.confirm('Are you sure you want to clear all your progress? This action cannot be undone.')) {
+      localStorage.removeItem('cssbattle_progress');
+      loadStats(); // Reload stats to show empty state
+    }
+  };
 
   return (
     <div className="container max-w-7xl mx-auto py-12 px-6">
-      <h1 className="text-4xl font-bold mb-8">Your Stats</h1>
+      {/* Profile Section */}
+      <div className="mb-12 p-6 rounded-xl bg-card border border-border">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold mb-4">Your Profile</h1>
+            <div className="space-y-2 text-muted-foreground">
+              <p>Total Challenges Completed: {stats.totalChallenges}</p>
+              <p>Average Score: {stats.averageCombinedScore}</p>
+              {stats.bestScore && (
+                <p>Best Score: {stats.bestScore.combinedScore.toFixed(1)} (Challenge #{stats.bestScore.challengeId})</p>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <button
+              onClick={clearAllData}
+              className="px-4 py-2 text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground rounded-md transition-colors"
+            >
+              Clear All Progress
+            </button>
+          </div>
+        </div>
+      </div>
 
-      {/* Overview Cards */}
+      {/* Stats Cards */}
+      <h2 className="text-2xl font-bold mb-6">Statistics</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <div className="p-6 rounded-xl bg-card">
           <div className="text-sm text-muted-foreground mb-2">Challenges Completed</div>
@@ -99,7 +145,7 @@ export default function StatsPage() {
         </div>
       </div>
 
-      {/* Score History Chart */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
         <div className="p-6 rounded-xl bg-card">
           <h2 className="text-xl font-semibold mb-6">Recent Scores</h2>
@@ -133,42 +179,6 @@ export default function StatsPage() {
           </div>
         </div>
       </div>
-
-      {/* Best Score */}
-      {stats.bestScore && (
-        <div className="p-6 rounded-xl bg-card">
-          <h2 className="text-xl font-semibold mb-6">Best Performance</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <div className="text-sm text-muted-foreground mb-2">Character Score</div>
-              <div className="text-3xl font-bold text-primary">
-                {stats.bestScore.characterScore.toFixed(1)}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {stats.bestScore.characterCount} characters
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground mb-2">Visual Score</div>
-              <div className="text-3xl font-bold text-accent">
-                {stats.bestScore.visualScore.toFixed(1)}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {stats.bestScore.pixelAccuracy.toFixed(2)}% match
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground mb-2">Combined Score</div>
-              <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {stats.bestScore.combinedScore.toFixed(1)}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {new Date(stats.bestScore.timestamp).toLocaleDateString()}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
