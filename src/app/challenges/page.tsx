@@ -1,24 +1,42 @@
+import { Suspense } from "react";
+import { PageLayout } from "~/components/PageLayout";
 import { challenges } from "./data";
-import { ChallengeList } from "./ChallengeList";
+import { ChallengesList } from "./ChallengesList";
 
-export default function ChallengesPage() {
+async function getChallenges() {
+  // Simulate async data fetching
+  await new Promise(resolve => setTimeout(resolve, 0));
+  return challenges;
+}
+
+export default async function ChallengesPage() {
+  const challenges = await getChallenges();
+
   return (
-    <div className="relative min-h-screen">
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
-
-      <div className="relative max-w-7xl mx-auto px-6 py-12">
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
-            CSS Challenges
+    <PageLayout>
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Challenges
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
-            Select a challenge to start coding. Each challenge tests different CSS concepts and skills,
-            helping you become a better developer.
+          <p className="text-muted-foreground">
+            Test your CSS skills with these creative challenges
           </p>
         </div>
 
-        <ChallengeList challenges={challenges} />
+        <Suspense fallback={
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-video rounded-lg border border-border bg-card animate-pulse"
+              />
+            ))}
+          </div>
+        }>
+          <ChallengesList challenges={challenges} />
+        </Suspense>
       </div>
-    </div>
+    </PageLayout>
   );
 }

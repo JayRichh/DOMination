@@ -6,7 +6,12 @@ import type * as Monaco from 'monaco-editor';
 import { setupEditor, editorOptions, defaultEditorConfig } from "~/config/editor";
 import type { EditorProps } from "~/types/components";
 
-export function Editor({ defaultValue = defaultEditorConfig.defaultValue, onChange }: EditorProps) {
+export function Editor({ 
+  defaultValue = defaultEditorConfig.defaultValue, 
+  onChange, 
+  language = "css",
+  value
+}: EditorProps) {
   const [mounted, setMounted] = useState(false);
   const [editor, setEditor] = useState<Monaco.editor.IStandaloneCodeEditor | null>(null);
 
@@ -15,25 +20,35 @@ export function Editor({ defaultValue = defaultEditorConfig.defaultValue, onChan
     setMounted(true);
   }, []);
 
+  // Update editor value when prop changes
+  useEffect(() => {
+    if (editor && value !== undefined && value !== editor.getValue()) {
+      editor.setValue(value);
+    }
+  }, [editor, value]);
+
   // Handle editor initialization
   const handleEditorDidMount = (editor: Monaco.editor.IStandaloneCodeEditor, monaco: typeof Monaco) => {
     setEditor(editor);
 
+    // Set initial value
+    if (value !== undefined) {
+      editor.setValue(value);
+    }
+
     // Add keyboard shortcuts
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-      // Format the code
       editor.getAction('editor.action.formatDocument')?.run();
     });
 
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP, () => {
-      // Toggle CSS property suggestions
       editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
     });
 
     // Add context menu actions
     editor.addAction({
-      id: 'format-css',
-      label: 'Format CSS',
+      id: 'format-code',
+      label: 'Format Code',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       contextMenuGroupId: 'modification',
       run: (ed) => {
@@ -43,13 +58,43 @@ export function Editor({ defaultValue = defaultEditorConfig.defaultValue, onChan
 
     editor.addAction({
       id: 'toggle-suggestions',
-      label: 'Show CSS Suggestions',
+      label: 'Show Suggestions',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP],
       contextMenuGroupId: 'help',
       run: (ed) => {
         ed.trigger('keyboard', 'editor.action.triggerSuggest', {});
       }
     });
+
+    // Language-specific actions
+    if (language === 'html') {
+      editor.addAction({
+        id: 'wrap-with-div',
+        label: 'Wrap with div',
+        contextMenuGroupId: 'modification',
+        run: (ed) => {
+          const selection = ed.getSelection();
+          if (selection) {
+            const text = ed.getModel()?.getValueInRange(selection) || '';
+            ed.executeEdits('wrap-with-div', [{
+              range: selection,
+              text: `<div>\n  ${text}\n</div>`
+            }]);
+          }
+        }
+      });
+    }
+
+    if (language === 'css') {
+      editor.addAction({
+        id: 'insert-color',
+        label: 'Insert Color',
+        contextMenuGroupId: 'modification',
+        run: (ed) => {
+          ed.trigger('keyboard', 'editor.action.quickCommand', {});
+        }
+      });
+    }
   };
 
   // Handle editor setup before mount
@@ -77,22 +122,16 @@ export function Editor({ defaultValue = defaultEditorConfig.defaultValue, onChan
 
   return (
     <div className="h-full w-full overflow-hidden rounded-md border border-border bg-background">
-      <div className="flex items-center justify-between border-b border-border px-4 py-2">
-        <div className="text-sm font-medium">CSS Editor</div>
-        <div className="flex items-center gap-2">
-          <div className="text-xs text-muted-foreground">
-            Ctrl+S to format • Ctrl+Space for suggestions
-          </div>
-        </div>
-      </div>
       <MonacoEditor
         defaultValue={defaultValue}
-        language={defaultEditorConfig.language}
+        value={value}
+        language={language}
         theme={defaultEditorConfig.theme}
         beforeMount={handleEditorWillMount}
         onMount={handleEditorDidMount}
         onChange={handleEditorChange}
         options={{
+          ...editorOptions,
           minimap: { enabled: false },
           fontSize: 14,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",

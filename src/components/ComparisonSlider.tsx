@@ -205,12 +205,26 @@ export function ComparisonSlider({ userOutput, targetOutput, orientation = "hori
   const [xrayMode, setXrayMode] = useState(false);
   const [currentOrientation, setCurrentOrientation] = useState(orientation);
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'x' || e.key === 'X') {
+      setXrayMode(prev => !prev);
+    } else if (e.key === 'v' || e.key === 'V') {
+      setCurrentOrientation(prev => prev === "horizontal" ? "vertical" : "horizontal");
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <button 
           onClick={() => setXrayMode(prev => !prev)}
           className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+          title="Press 'X' to toggle"
         >
           {xrayMode ? "Disable" : "Enable"} X-ray Mode
         </button>
@@ -218,6 +232,7 @@ export function ComparisonSlider({ userOutput, targetOutput, orientation = "hori
         <button
           onClick={() => setCurrentOrientation(prev => prev === "horizontal" ? "vertical" : "horizontal")}
           className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+          title="Press 'V' to toggle"
         >
           Switch to {currentOrientation === "horizontal" ? "Vertical" : "Horizontal"}
         </button>

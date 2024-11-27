@@ -1,16 +1,24 @@
 import type { ReactNode } from 'react';
-import type { MonacoEditor } from './editor';
+import type { EditorLanguage } from '~/config/editor';
+import type { EditorInstance } from './editor';
 
 export interface EditorProps {
   defaultValue?: string;
-  targetHtml?: string;
+  value?: string;
+  language?: EditorLanguage;
   onChange?: (value: string) => void;
+  onSave?: () => void;
+  readOnly?: boolean;
+  height?: string | number;
+  width?: string | number;
+  className?: string;
 }
 
 export interface PreviewPaneProps {
   html: string;
   css: string;
   backgroundColor: string;
+  onError?: (error: string) => void;
 }
 
 export interface SliderProps {
@@ -25,15 +33,44 @@ export interface ComparisonSliderProps {
   orientation?: 'horizontal' | 'vertical';
 }
 
-export interface GradientBackgroundProps {
-  variant?: "default" | "radial" | "mesh";
-  interactive?: boolean;
-  className?: string;
-  children?: ReactNode;
-}
-
 export interface EditorRef {
-  editor: MonacoEditor | null;
+  editor: EditorInstance | null;
   formatCode: () => void;
   showSuggestions: () => void;
+}
+
+export interface TabProps {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+export interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+  onError?: (error: Error) => void;
+}
+
+export interface ErrorMessageProps {
+  message: string;
+  details?: string;
+  onRetry?: () => void;
+}
+
+export interface LoadingProps {
+  size?: 'small' | 'medium' | 'large';
+  message?: string;
+}
+
+export interface TooltipProps {
+  content: ReactNode;
+  children: ReactNode;
+  position?: 'top' | 'right' | 'bottom' | 'left';
+  delay?: number;
+}
+
+export interface ValidationMessageProps {
+  type: 'error' | 'warning' | 'info' | 'success';
+  message: string;
+  onClose?: () => void;
 }

@@ -1,21 +1,32 @@
-export * from './setup';
-export * from './snippets';
-export * from './theme';
+import { setupEditor, editorOptions } from './setup';
+import { htmlSnippets, cssSnippets } from './snippets';
+import { editorTheme } from './theme';
 
-// Re-export common types
-export type {
-  MonacoTheme,
-  MonacoEditor,
-  MonacoCompletionItem,
-  MonacoRange,
-  MonacoPosition,
-  CssSnippet,
-  EditorConfig,
-} from '~/types/editor';
-
-// Default configuration
 export const defaultEditorConfig = {
+  defaultValue: '',
   language: 'css',
-  theme: 'css-battle',
-  defaultValue: `/* Write your CSS here */\n\n`,
-} as const;
+  theme: 'custom',
+};
+
+export {
+  setupEditor,
+  editorOptions,
+  htmlSnippets,
+  cssSnippets,
+  editorTheme,
+};
+
+export type EditorLanguage = 'html' | 'css';
+
+export interface EditorConfig {
+  defaultValue: string;
+  language: EditorLanguage;
+  theme: string;
+}
+
+export interface EditorInstance {
+  getValue(): string;
+  setValue(value: string): void;
+  getAction(id: string): { run(): void } | null;
+  trigger(source: string, handlerId: string, payload: unknown): void;
+}

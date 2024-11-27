@@ -16,7 +16,12 @@ export function saveChallengeState(challengeId: string, state: ChallengeState): 
   }
 }
 
-export function updateChallengeWithScore(challengeId: string, newScore: ChallengeScore): void {
+export function updateChallengeWithScore(
+  challengeId: string,
+  newScore: ChallengeScore,
+  currentHtml: string,
+  currentCss: string
+): void {
   if (typeof window === 'undefined') return;
   
   try {
@@ -26,7 +31,9 @@ export function updateChallengeWithScore(challengeId: string, newScore: Challeng
       lastAttempt: newScore,
       bestScore: !currentState.bestScore || newScore.combinedScore > currentState.bestScore.combinedScore
         ? newScore
-        : currentState.bestScore
+        : currentState.bestScore,
+      currentHtml,
+      currentCss
     };
     
     saveChallengeState(challengeId, newState);
@@ -35,11 +42,34 @@ export function updateChallengeWithScore(challengeId: string, newScore: Challeng
   }
 }
 
+export function updateChallengeContent(
+  challengeId: string,
+  html: string,
+  css: string
+): void {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const currentState = getChallengeState(challengeId) || createInitialState();
+    const newState: ChallengeState = {
+      ...currentState,
+      currentHtml: html,
+      currentCss: css
+    };
+    
+    saveChallengeState(challengeId, newState);
+  } catch (error) {
+    console.error('Failed to update challenge content:', error);
+  }
+}
+
 export function createInitialState(): ChallengeState {
   return {
     scores: [],
     lastAttempt: undefined,
-    bestScore: undefined
+    bestScore: undefined,
+    currentHtml: undefined,
+    currentCss: undefined
   };
 }
 

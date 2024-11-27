@@ -1,25 +1,61 @@
 import type * as Monaco from 'monaco-editor';
+import type { EditorLanguage } from '~/config/editor';
 
-export interface MonacoTheme extends Monaco.editor.IStandaloneThemeData {}
-export interface MonacoEditor extends Monaco.editor.IStandaloneCodeEditor {}
-export interface MonacoCompletionItem extends Monaco.languages.CompletionItem {}
-export interface MonacoRange extends Monaco.IRange {}
-export interface MonacoPosition extends Monaco.Position {}
+export type MonacoEditor = Monaco.editor.IStandaloneCodeEditor;
 
-export interface CssSnippet {
-  label: string;
-  detail: string;
-  insertText: string;
-  documentation: string;
+export interface EditorRef {
+  editor: MonacoEditor | null;
+  formatCode: () => void;
+  showSuggestions: () => void;
 }
 
-export interface EditorConfig {
-  theme: MonacoTheme;
-  options: Monaco.editor.IStandaloneEditorConstructionOptions;
-  completions: {
-    css: CssSnippet[];
-    properties: string[];
-    values: string[];
-    functions: string[];
+export interface EditorProps {
+  defaultValue?: string;
+  language?: EditorLanguage;
+  onChange?: (value: string) => void;
+  onSave?: () => void;
+  readOnly?: boolean;
+  height?: string | number;
+  width?: string | number;
+  className?: string;
+  options?: Monaco.editor.IStandaloneEditorConstructionOptions;
+}
+
+export interface EditorTheme extends Monaco.editor.IStandaloneThemeData {
+  colors: {
+    [key: string]: string;
   };
+}
+
+export interface EditorSnippet {
+  description: string;
+  content: string;
+}
+
+export interface EditorSnippets {
+  [key: string]: EditorSnippet;
+}
+
+export interface EditorInstance {
+  getValue(): string;
+  setValue(value: string): void;
+  getAction(id: string): { run(): void } | null;
+  trigger(source: string, handlerId: string, payload: unknown): void;
+  layout(): void;
+  focus(): void;
+  dispose(): void;
+}
+
+export interface EditorError {
+  message: string;
+  line: number;
+  column: number;
+  endLine?: number;
+  endColumn?: number;
+  source?: string;
+}
+
+export interface EditorValidation {
+  errors: EditorError[];
+  warnings: EditorError[];
 }

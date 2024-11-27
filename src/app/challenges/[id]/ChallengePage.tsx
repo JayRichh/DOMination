@@ -1,22 +1,25 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import Link from "next/link";
 import { Editor } from "~/components/Editor";
 import { PreviewPane } from "~/components/PreviewPane";
 import { ComparisonSlider } from "~/components/ComparisonSlider";
+import { ValidationMessage } from "~/components/ValidationMessage";
+import { ThemeToggle } from "~/components/ThemeToggle";
 import type { Challenge, ChallengeScore } from "~/types/challenge";
-import { saveChallengeState, getChallengeState, updateChallengeWithScore } from "~/utils/challengeState";
+import { getChallengeState, updateChallengeWithScore, updateChallengeContent } from "~/utils/challengeState";
 import { generateChallengeScore } from "~/utils/scoring";
 
 interface ChallengePageProps {
   challenge: Challenge;
 }
 
-const getStarterCSS = (challenge: Challenge) => `/* ${challenge.title} */
+const getStarterCSS = (challenge: Challenge) => 
+  challenge.starterCss || `/* ${challenge.title} */
 /* Try to match the target! */
 
 .square {
-  /* Add your styles here */
   width: 100px;
   height: 100px;
   background: ${challenge.foregroundColor};
@@ -25,10 +28,13 @@ const getStarterCSS = (challenge: Challenge) => `/* ${challenge.title} */
 /* Colors:
  * Background: ${challenge.backgroundColor}
  * Foreground: ${challenge.foregroundColor}
- */
-`;
+ */`;
+
+const getStarterHTML = (challenge: Challenge) =>
+  challenge.starterHtml || challenge.targetHtml;
 
 export function ChallengePage({ challenge }: ChallengePageProps) {
+  const [userHtml, setUserHtml] = useState("");
   const [userCss, setUserCss] = useState("");
   const [score, setScore] = useState<ChallengeScore | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -36,21 +42,27 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
   const userPreviewRef = useRef<HTMLDivElement>(null);
   const targetPreviewRef = useRef<HTMLDivElement>(null);
 
-  // Initialize CSS and load saved state on mount
   useEffect(() => {
-    setUserCss(getStarterCSS(challenge));
     const savedState = getChallengeState(challenge.id);
+    setUserHtml(savedState?.currentHtml || getStarterHTML(challenge));
+    setUserCss(savedState?.currentCss || getStarterCSS(challenge));
     if (savedState?.lastAttempt) {
       setScore(savedState.lastAttempt);
-      setUserCss(savedState.lastAttempt.css || getStarterCSS(challenge));
     }
     setMounted(true);
   }, [challenge]);
 
+  const handleHtmlChange = useCallback((newHtml: string) => {
+    setUserHtml(newHtml);
+    setScore(null);
+    updateChallengeContent(challenge.id, newHtml, userCss);
+  }, [challenge.id, userCss]);
+
   const handleCssChange = useCallback((newCss: string) => {
     setUserCss(newCss);
     setScore(null);
-  }, []);
+    updateChallengeContent(challenge.id, userHtml, newCss);
+  }, [challenge.id, userHtml]);
 
   const handleSubmit = useCallback(async () => {
     if (!userPreviewRef.current || !targetPreviewRef.current) return;
@@ -58,6 +70,7 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
 
     try {
       const newScore = await generateChallengeScore(
+        userHtml,
         userCss,
         challenge.optimalCodeLength,
         userPreviewRef.current,
@@ -65,107 +78,109 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
       );
 
       setScore(newScore);
-      updateChallengeWithScore(challenge.id, newScore);
+      updateChallengeWithScore(challenge.id, newScore, userHtml, userCss);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while saving the score');
       console.error('Score update error:', err);
     }
-  }, [userCss, challenge.optimalCodeLength, challenge.id]);
+  }, [userHtml, userCss, challenge.optimalCodeLength, challenge.id]);
 
   if (!mounted) return null;
 
   return (
-    <div className="container max-w-7xl mx-auto grid grid-rows-[auto_1fr] h-[calc((100vh-4rem))]">
-      {/* Header - Fixed height, always visible */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex-shrink-0">
-            <h1 className="text-2xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {challenge.title}
-            </h1>
-            <p className="text-muted-foreground">
-              {challenge.description}
-            </p>
-            {score && (
-              <div className="mt-2 text-sm">
-                <p>Characters: {score.characterCount} ({score.characterScore.toFixed(1)})</p>
-                <p>Visual Match: {score.pixelAccuracy.toFixed(1)}% ({score.visualScore.toFixed(1)})</p>
-                <p>Total Score: {score.combinedScore.toFixed(1)}</p>
-              </div>
-            )}
-            {error && (
-              <p className="mt-2 text-sm text-red-500">{error}</p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-6 flex-shrink-0">
-            {score && (
-              <div className="flex gap-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {score.characterScore.toFixed(1)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Characters</div>
-                  <div className="text-xs text-muted-foreground">
-                    {score.characterCount}/{challenge.optimalCodeLength}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-accent">
-                    {score.visualScore.toFixed(1)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Visual</div>
-                  <div className="text-xs text-muted-foreground">
-                    {score.pixelAccuracy.toFixed(2)}% match
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    {score.combinedScore.toFixed(1)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Total</div>
-                </div>
-              </div>
-            )}
-            <button
-              onClick={handleSubmit}
-              className="btn btn-primary min-w-32"
-            >
-              Submit Solution
-            </button>
-          </div>
+    <div className="h-screen flex flex-col">
+      {/* Top Navigation Bar */}
+      <nav className="h-16 border-b border-border bg-background/90 backdrop-blur-lg shadow-sm flex items-center justify-between px-6">
+        <div className="flex items-center gap-6">
+          <Link 
+            href="/challenges"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Back to Challenges
+          </Link>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            {challenge.title}
+          </h1>
         </div>
-      </header>
 
-      {/* Main Content - Grid Layout */}
-      <main className="grid grid-cols-2 min-h-0">
-        {/* Left Panel - Editor */}
-        <section className="grid grid-rows-[auto_1fr] min-h-0 border-r border-border bg-muted">
-          {/* HTML Preview - Fixed height */}
-          <div className="p-4 border-b border-border">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">HTML Structure</h3>
-            <div className="p-3 rounded-lg bg-background/50 border border-border overflow-auto max-h-40">
-              <pre className="text-sm font-mono text-muted-foreground">
-                {challenge.targetHtml}
-              </pre>
+        <div className="flex items-center gap-4">
+          {score && (
+            <div className="flex gap-6 px-4 py-2 rounded-md bg-background/50 border border-border">
+              <div className="text-center">
+                <div className="text-lg font-bold text-primary">
+                  {score.characterScore.toFixed(1)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {score.characterCount}/{challenge.optimalCodeLength}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-accent">
+                  {score.visualScore.toFixed(1)}%
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Match
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {score.combinedScore.toFixed(1)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Total
+                </div>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Submit Solution
+          </button>
+          <ThemeToggle />
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="flex-1 grid grid-cols-2 min-h-0">
+        {/* Left Panel - Editors */}
+        <section className="grid grid-rows-2 min-h-0 border-r border-border bg-muted">
+          <div className="min-h-0 border-b border-border">
+            <div className="h-8 px-4 flex items-center justify-between border-b border-border bg-background/50">
+              <span className="text-sm font-medium">HTML Editor</span>
+              <span className="text-xs text-muted-foreground">
+                Press Ctrl+S to format
+              </span>
+            </div>
+            <div className="h-[calc(100%-2rem)]">
+              <Editor
+                language="html"
+                value={userHtml}
+                onChange={handleHtmlChange}
+              />
             </div>
           </div>
-
-          {/* CSS Editor - Fills remaining space */}
           <div className="min-h-0">
-            <Editor 
-              defaultValue={getStarterCSS(challenge)}
-              targetHtml={challenge.targetHtml}
-              onChange={handleCssChange}
-            />
+            <div className="h-8 px-4 flex items-center justify-between border-b border-border bg-background/50">
+              <span className="text-sm font-medium">CSS Editor</span>
+              <span className="text-xs text-muted-foreground">
+                Press Ctrl+Space for suggestions
+              </span>
+            </div>
+            <div className="h-[calc(100%-2rem)]">
+              <Editor
+                language="css"
+                value={userCss}
+                onChange={handleCssChange}
+              />
+            </div>
           </div>
         </section>
 
         {/* Right Panel - Preview */}
         <section className="grid grid-rows-[1fr_auto] min-h-0 bg-muted">
-          {/* Preview Grid */}
           <div className="grid grid-rows-2 gap-6 p-6 min-h-0 overflow-auto">
-            {/* User Preview */}
             <div className="space-y-2 min-h-0">
               <h3 className="text-sm font-medium text-muted-foreground">Your Output</h3>
               <div 
@@ -173,14 +188,13 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
                 className="h-[calc(100%-2rem)] rounded-lg overflow-hidden shadow-lg"
               >
                 <PreviewPane
-                  html={challenge.targetHtml}
+                  html={userHtml}
                   css={userCss}
                   backgroundColor={challenge.backgroundColor}
                 />
               </div>
             </div>
 
-            {/* Target Preview */}
             <div className="space-y-2 min-h-0">
               <h3 className="text-sm font-medium text-muted-foreground">Target</h3>
               <div 
@@ -196,12 +210,11 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             </div>
           </div>
 
-          {/* Comparison Tools - Fixed height */}
           <div className="border-t border-border p-6 bg-background/60 backdrop-blur-xl">
             <ComparisonSlider
               userOutput={
                 <PreviewPane
-                  html={challenge.targetHtml}
+                  html={userHtml}
                   css={userCss}
                   backgroundColor={challenge.backgroundColor}
                 />
@@ -216,7 +229,14 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
             />
           </div>
         </section>
-      </main>
+      </div>
+
+      {/* Error Messages */}
+      {error && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <ValidationMessage type="error" message={error} />
+        </div>
+      )}
     </div>
   );
 }

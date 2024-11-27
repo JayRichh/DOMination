@@ -1,150 +1,119 @@
 import type * as Monaco from 'monaco-editor';
-import { cssSnippets, cssProperties, cssValues, cssFunctions, createCompletionItem } from './snippets';
-import { editorTheme, editorOptions } from './theme';
+import { cssSnippets, htmlSnippets } from './snippets';
+import { editorTheme } from './theme';
 
 export function setupEditor(monaco: typeof Monaco) {
-  // Set up theme
-  monaco.editor.defineTheme('css-battle', editorTheme);
-  monaco.editor.setTheme('css-battle');
+  // Register custom theme
+  monaco.editor.defineTheme('custom', editorTheme);
 
-  // Register CSS language features
-  monaco.languages.registerCompletionItemProvider('css', {
-    provideCompletionItems: (model: Monaco.editor.ITextModel, position: Monaco.Position) => {
-      const word = model.getWordUntilPosition(position);
-      const range = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-
-      const suggestions = [
-        // CSS Properties
-        ...cssProperties.map(prop => 
-          createCompletionItem(
-            monaco,
-            prop,
-            monaco.languages.CompletionItemKind.Property,
-            `${prop}: $1;`,
-            range,
-            `CSS Property: ${prop}`
-          )
-        ),
-
-        // CSS Values
-        ...cssValues.map(value =>
-          createCompletionItem(
-            monaco,
-            value,
-            monaco.languages.CompletionItemKind.Value,
-            value,
-            range,
-            `CSS Value: ${value}`
-          )
-        ),
-
-        // CSS Functions
-        ...cssFunctions.map(func =>
-          createCompletionItem(
-            monaco,
-            func,
-            monaco.languages.CompletionItemKind.Function,
-            `${func}($1)`,
-            range,
-            `CSS Function: ${func}`
-          )
-        ),
-
-        // CSS Snippets
-        ...cssSnippets.map(snippet =>
-          createCompletionItem(
-            monaco,
-            snippet.label,
-            monaco.languages.CompletionItemKind.Snippet,
-            snippet.insertText,
-            range,
-            snippet.documentation
-          )
-        ),
-      ];
+  // HTML Language Configuration
+  monaco.languages.registerCompletionItemProvider('html', {
+    provideCompletionItems: (model, position) => {
+      const suggestions = Object.entries(htmlSnippets).map(([key, value]) => ({
+        label: key,
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        documentation: value.description,
+        insertText: value.content,
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        range: {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: position.column,
+          endColumn: position.column
+        }
+      }));
 
       return { suggestions };
-    },
+    }
   });
 
-  // Register hover provider
-  monaco.languages.registerHoverProvider('css', {
-    provideHover: (model: Monaco.editor.ITextModel, position: Monaco.Position) => {
-      const word = model.getWordAtPosition(position);
-      if (!word) return null;
+  // CSS Language Configuration
+  monaco.languages.registerCompletionItemProvider('css', {
+    provideCompletionItems: (model, position) => {
+      const suggestions = Object.entries(cssSnippets).map(([key, value]) => ({
+        label: key,
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        documentation: value.description,
+        insertText: value.content,
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        range: {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: position.column,
+          endColumn: position.column
+        }
+      }));
 
-      const text = word.word;
-      const range = {
-        startLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endLineNumber: position.lineNumber,
-        endColumn: word.endColumn,
-      };
-
-      // Check if word is a CSS property
-      if (cssProperties.includes(text as any)) {
-        return {
-          range,
-          contents: [
-            { value: `**${text}**` },
-            { value: `CSS Property: ${text}` },
-          ],
-        };
-      }
-
-      // Check if word is a CSS value
-      if (cssValues.includes(text as any)) {
-        return {
-          range,
-          contents: [
-            { value: `**${text}**` },
-            { value: `CSS Value: ${text}` },
-          ],
-        };
-      }
-
-      // Check if word is a CSS function
-      if (cssFunctions.includes(text as any)) {
-        return {
-          range,
-          contents: [
-            { value: `**${text}**` },
-            { value: `CSS Function: ${text}` },
-          ],
-        };
-      }
-
-      return null;
-    },
+      return { suggestions };
+    }
   });
 
-  // Register formatting provider
-  monaco.languages.registerDocumentFormattingEditProvider('css', {
-    provideDocumentFormattingEdits: (model: Monaco.editor.ITextModel) => {
+  // HTML Formatting Configuration
+  monaco.languages.registerDocumentFormattingEditProvider('html', {
+    provideDocumentFormattingEdits: (model) => {
       const text = model.getValue();
-      const formatted = text
-        .replace(/\s*{\s*/g, ' {\n  ')
-        .replace(/\s*}\s*/g, '\n}\n')
-        .replace(/;\s*/g, ';\n  ')
-        .replace(/\n\s*\n/g, '\n')
-        .trim();
-
-      return [
-        {
-          range: model.getFullModelRange(),
-          text: formatted,
-        },
-      ];
-    },
+      const formatted = formatHTML(text);
+      return [{
+        range: model.getFullModelRange(),
+        text: formatted
+      }];
+    }
   });
 
-  return {
-    theme: editorTheme,
-    options: editorOptions,
-  };
+  // CSS Formatting Configuration
+  monaco.languages.registerDocumentFormattingEditProvider('css', {
+    provideDocumentFormattingEdits: (model) => {
+      const text = model.getValue();
+      const formatted = formatCSS(text);
+      return [{
+        range: model.getFullModelRange(),
+        text: formatted
+      }];
+    }
+  });
 }
+
+function formatHTML(html: string): string {
+  let formatted = '';
+  let indent = 0;
+  const lines = html.split(/>\s*</);
+  
+  lines.forEach((line, i) => {
+    if (line.match(/^\/\w/)) indent--;
+    formatted += '\n' + '  '.repeat(indent) + line.trim() + (i < lines.length - 1 ? '>' : '') + (i === 0 ? '' : '<');
+    if (!line.match(/^\//) && line.match(/^[\w\-]+(?!\/)/) && !line.match(/\/$/)) indent++;
+  });
+  
+  return formatted.trim();
+}
+
+function formatCSS(css: string): string {
+  return css
+    .replace(/\s*{\s*/g, ' {\n  ')
+    .replace(/\s*}\s*/g, '\n}\n')
+    .replace(/;\s*/g, ';\n  ')
+    .replace(/,\s*/g, ', ')
+    .replace(/\n\s*\n/g, '\n')
+    .replace(/\n\s*}/g, '\n}')
+    .trim();
+}
+
+export const editorOptions = {
+  theme: 'custom',
+  fontSize: 14,
+  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+  minimap: { enabled: false },
+  lineNumbers: 'on',
+  scrollBeyondLastLine: false,
+  automaticLayout: true,
+  tabSize: 2,
+  wordWrap: 'on',
+  formatOnPaste: true,
+  formatOnType: true,
+  suggestOnTriggerCharacters: true,
+  quickSuggestions: {
+    other: true,
+    comments: true,
+    strings: true
+  }
+};

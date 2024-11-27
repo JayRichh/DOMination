@@ -1,0 +1,21 @@
+{
+  "name": "CSS Battle",
+  "short_name": "CSS Battle",
+  "description": "Master CSS by recreating targets with code. Engage in fun and interactive challenges.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

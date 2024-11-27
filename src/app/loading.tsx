@@ -1,20 +1,34 @@
-export default function Loading() {
+import { PageLayout } from "~/components/PageLayout";
+
+export default function LoadingPage() {
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-      <div className="flex flex-col items-center gap-4">
-        <div className="relative w-16 h-16">
-          {/* Animated squares representing CSS Battle */}
-          <div className="absolute inset-0 grid grid-cols-2 gap-1">
-            <div className="animate-pulse bg-primary/20 rounded-sm" />
-            <div className="animate-pulse bg-primary/40 rounded-sm delay-75" />
-            <div className="animate-pulse bg-primary/60 rounded-sm delay-150" />
-            <div className="animate-pulse bg-primary/80 rounded-sm delay-300" />
+    <PageLayout>
+      <div className="min-h-[calc(100vh-4rem)] flex flex-col">
+        <div className="flex-1 flex items-center justify-center py-16">
+          <div className="max-w-4xl mx-auto text-center space-y-6">
+            <div className="h-16 w-96 bg-muted rounded-lg animate-pulse mx-auto" />
+            <div className="h-8 w-80 bg-muted rounded-lg animate-pulse mx-auto" />
+            <div className="flex items-center justify-center gap-4">
+              <div className="h-12 w-32 bg-muted rounded-lg animate-pulse" />
+              <div className="h-12 w-32 bg-muted rounded-lg animate-pulse" />
+            </div>
           </div>
         </div>
-        <div className="text-lg font-medium text-muted-foreground">
-          Loading...
+
+        <div className="container mx-auto pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-lg border border-border bg-card/50 backdrop-blur-sm">
+                <div className="p-6 space-y-4">
+                  <div className="h-48 bg-muted rounded-md animate-pulse" />
+                  <div className="h-6 w-48 bg-muted rounded-lg animate-pulse" />
+                  <div className="h-4 w-full bg-muted rounded-lg animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

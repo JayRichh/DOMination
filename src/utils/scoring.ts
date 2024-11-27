@@ -142,54 +142,26 @@ function cleanHtmlContent(html: string): string {
 }
 
 /**
- * Extract and clean CSS content from a solution, excluding HTML
- * @param solution Full solution including HTML and CSS
- * @returns CSS-only content, cleaned and normalized
- */
-function extractCssContent(solution: string): string {
-  if (typeof solution !== 'string') {
-    throw new Error('Solution must be a string');
-  }
-
-  try {
-    // First, remove all HTML comments to avoid interference with CSS extraction
-    const noHtmlComments = cleanHtmlContent(solution);
-
-    // Extract content between <style> tags if present
-    const styleMatch = noHtmlComments.match(/<style[^>]*>([\s\S]*?)<\/style>/);
-    const cssContent = styleMatch ? styleMatch[1] : solution;
-
-    // Remove any remaining HTML tags
-    const noHtml = cssContent.replace(/<[^>]*>/g, '');
-
-    // Clean and normalize the CSS content
-    return cleanCssContent(noHtml);
-  } catch (error) {
-    console.error('Error processing CSS content:', error);
-    // Return empty string or throw error based on your error handling strategy
-    return '';
-  }
-}
-
-/**
  * Generate a complete score object for a challenge attempt
  */
 export async function generateChallengeScore(
+  userHtml: string,
   userCss: string,
   optimalLength: number,
   userPreview: HTMLElement,
   targetPreview: HTMLElement
 ): Promise<ChallengeScore> {
-  if (!userCss || !optimalLength || !userPreview || !targetPreview) {
+  if (!userHtml || !userCss || !optimalLength || !userPreview || !targetPreview) {
     throw new Error('Missing required parameters for score generation');
   }
 
   try {
-    // Extract and normalize CSS content only
-    const cssContent = extractCssContent(userCss);
+    // Extract and normalize HTML and CSS content
+    const htmlContent = cleanHtmlContent(userHtml);
+    const cssContent = cleanCssContent(userCss);
     
     // Get character count excluding comments and unnecessary whitespace
-    const characterCount = cssContent.length;
+    const characterCount = htmlContent.length + cssContent.length;
     
     // Calculate scores
     const characterScore = calculateCharacterScore(characterCount, optimalLength);
@@ -203,7 +175,8 @@ export async function generateChallengeScore(
       combinedScore,
       characterCount,
       pixelAccuracy,
-      css: userCss, // Store original CSS for reference
+      html: userHtml,
+      css: userCss,
       timestamp: new Date().toISOString()
     };
   } catch (error) {

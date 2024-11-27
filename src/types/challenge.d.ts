@@ -4,19 +4,39 @@ export interface Challenge {
   description: string;
   targetHtml: string;
   targetCss: string;
+  starterHtml?: string;
+  starterCss?: string;
   backgroundColor: string;
   foregroundColor: string;
   optimalCodeLength: number;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  tags?: string[];
+  validation?: {
+    requiredSelectors?: string[];
+    requiredElements?: string[];
+    forbiddenSelectors?: string[];
+    forbiddenElements?: string[];
+    maxElements?: number;
+  };
 }
 
-export interface ChallengeSubmission {
-  challengeId: string;
-  userHtml: string;
-  userCss: string;
-  accuracy: number;
-  codeLength: number;
-  score: number;
-  timestamp: Date;
+export interface ChallengeScore {
+  characterScore: number;
+  visualScore: number;
+  combinedScore: number;
+  characterCount: number;
+  pixelAccuracy: number;
+  timestamp: string;
+  html?: string;
+  css?: string;
+}
+
+export interface ChallengeState {
+  scores: ChallengeScore[];
+  bestScore?: ChallengeScore;
+  lastAttempt?: ChallengeScore;
+  currentHtml?: string;
+  currentCss?: string;
 }
 
 export interface ComparisonResult {

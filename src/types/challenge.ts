@@ -4,25 +4,47 @@ export interface Challenge {
   description: string;
   targetHtml: string;
   targetCss: string;
+  starterHtml?: string;
+  starterCss?: string;
   backgroundColor: string;
   foregroundColor: string;
   optimalCodeLength: number;
   difficulty?: 'easy' | 'medium' | 'hard';
   tags?: string[];
+  validation?: {
+    requiredSelectors?: string[];
+    requiredElements?: string[];
+    forbiddenSelectors?: string[];
+    forbiddenElements?: string[];
+    maxElements?: number;
+  };
 }
 
 export interface ChallengeScore {
-  characterScore: number;  // Score based on character count (0-100)
-  visualScore: number;     // Score based on pixel accuracy (0-100)
-  combinedScore: number;   // Weighted average of both scores
-  characterCount: number;  // Actual character count
-  pixelAccuracy: number;   // Actual pixel match percentage
-  timestamp: string;       // When the score was achieved
-  css?: string;            // Optional CSS used for this score
+  characterScore: number;
+  visualScore: number;
+  combinedScore: number;
+  characterCount: number;
+  pixelAccuracy: number;
+  timestamp: string;
+  html: string;
+  css: string;
 }
 
 export interface ChallengeState {
   scores: ChallengeScore[];
   bestScore?: ChallengeScore;
   lastAttempt?: ChallengeScore;
+  currentHtml?: string;
+  currentCss?: string;
+}
+
+export interface ComparisonResult {
+  accuracy: number;
+  differences: {
+    x: number;
+    y: number;
+    expectedColor: string;
+    actualColor: string;
+  }[];
 }

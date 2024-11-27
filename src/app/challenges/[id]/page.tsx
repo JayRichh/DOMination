@@ -1,28 +1,43 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { challenges } from "../data";
 import { ChallengePage } from "./ChallengePage";
-import { generateMetadata } from "./metadata";
+import { challenges } from "../data";
+import type { Challenge } from "~/types/challenge";
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
-
-export function generateStaticParams() {
-  return challenges.map((challenge) => ({
-    id: challenge.id,
-  }));
+interface PageProps {
+  params: Promise<{
+    id: string;
+  }>;
 }
 
-export { generateMetadata };
+async function getChallenge(id: string): Promise<Challenge | undefined> {
+  // Simulate async data fetching
+  await new Promise(resolve => setTimeout(resolve, 0));
+  return challenges.find(c => c.id === id);
+}
 
-export default async function Page({ params }: Props) {
-  // Destructure id from params Promise
-  const { id } = await params;
-  const challenge = challenges.find((c) => c.id === id);
+async function ChallengeContent({ id }: { id: string }) {
+  const challenge = await getChallenge(id);
 
   if (!challenge) {
     notFound();
   }
 
   return <ChallengePage challenge={challenge} />;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+
+  return (
+    <Suspense>
+      <ChallengeContent id={id} />
+    </Suspense>
+  );
+}
+
+export async function generateStaticParams() {
+  return challenges.map((challenge) => ({
+    id: challenge.id,
+  }));
 }

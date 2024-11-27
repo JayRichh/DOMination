@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getChallengeState, getAllChallengeStates } from "~/utils/challengeState";
-import type { Challenge, ChallengeScore } from "~/types/challenge";
+import type { Challenge } from "~/types/challenge";
 
 function ChallengeCard({ challenge }: { challenge: Challenge }) {
   const [completionState, setCompletionState] = useState<{ characterScore: number; visualScore: number; combinedScore: number } | null>(null);
