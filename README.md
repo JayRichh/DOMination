@@ -2,7 +2,7 @@
 
 A full-featured web app for recreating CSS battles. Allowing users to test their Web Dev skills by replicating target designs using HTML/ CSS, providing real-time previews, scoring based on accuracy and code efficiency, and interactive comparison tools.  <br>
 
-![CSSBattle App](https://github.com/user-attachments/assets/058d479e-1781-442d-b05d-023c1d51f7dd)
+![image](https://github.com/user-attachments/assets/0c62c6c8-963b-4223-9a58-22204c93919c)
 
 <div style="display: flex; flex-direction: row; align-items: flex-start; gap: 20px;">
 
@@ -27,8 +27,8 @@ npm run dev
   </div>
 
   <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-    <img src="https://github.com/user-attachments/assets/85d26d56-864a-4abd-b60f-671f9f17cdc9" alt="Project Screenshot 1" style="width: 100%; border-radius: 8px;" />
-    <img src="https://github.com/user-attachments/assets/ff41498b-df9e-41fc-8817-532384bb6a31" alt="Project Screenshot 2" style="width: 100%; border-radius: 8px;" />
+    <img src="https://github.com/user-attachments/assets/b30f605e-d4f7-4afe-8c13-ab6c66c52c84" alt="Project Screenshot 1" style="width: 100%; border-radius: 8px;" />
+    <img src="https://github.com/user-attachments/assets/6f4cd356-1e0f-442e-be5f-eae574eb287a" alt="Project Screenshot 2" style="width: 100%; border-radius: 8px;" />
   </div>
 
 </div>
@@ -176,6 +176,8 @@ npm run lint         # ESLint
 npm run format       # Prettier formatting
 ```
 
+![image](https://github.com/user-attachments/assets/340bd6e3-a9b8-4be0-b5a6-8d8b61044eee)
+![image](https://github.com/user-attachments/assets/ad011321-19ee-441b-b3d0-dd96977637c9)
 
 ## License
 
