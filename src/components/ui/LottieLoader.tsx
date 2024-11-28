@@ -14,18 +14,18 @@ const sizeStyles = {
   lg: "w-32 h-32",
 } as const;
 
+type LottiePlayerElement = HTMLElement & {
+  src?: string;
+  background?: string;
+  speed?: string;
+  loop?: boolean;
+  autoplay?: boolean;
+  style?: React.CSSProperties;
+};
+
 declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'lottie-player': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
-        src?: string;
-        background?: string;
-        speed?: string;
-        loop?: boolean;
-        autoplay?: boolean;
-        style?: React.CSSProperties;
-      }, HTMLElement>;
-    }
+  interface HTMLElementTagNameMap {
+    'lottie-player': LottiePlayerElement;
   }
 }
 
@@ -33,7 +33,7 @@ let scriptLoaded = false;
 
 export function LottieLoader({ size = "md", className }: LottieLoaderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<HTMLElement | null>(null);
+  const playerRef = useRef<LottiePlayerElement | null>(null);
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export function LottieLoader({ size = "md", className }: LottieLoaderProps) {
     const createPlayer = () => {
       if (!containerRef.current || playerRef.current) return;
       
-      const player = document.createElement('lottie-player') as HTMLElement;
+      const player = document.createElement('lottie-player') as LottiePlayerElement;
       player.setAttribute('src', "https://lottie.host/3ea925c6-66ed-4459-b83c-414652b9e48a/CnboMeq0M4.json");
       player.setAttribute('background', "transparent");
       player.setAttribute('speed', "1");
