@@ -5,9 +5,11 @@ import { challenges } from "./data";
 import { ChallengesList } from "./ChallengesList";
 import { StatsOverview } from "./StatsOverview";
 import { getAllChallengeStates } from "~/utils/challengeState";
+import { LottieLoader } from "~/components/ui/LottieLoader";
 
 async function getChallenges() {
-  await new Promise(resolve => setTimeout(resolve, 0));
+  // Simulate loading delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
   return challenges;
 }
 
@@ -41,22 +43,16 @@ export default async function ChallengesPage() {
           </div>
 
           <Suspense fallback={
-            <div className="mb-12 animate-pulse">
-              <div className="h-16 bg-muted rounded-lg mb-4" />
-              <div className="h-2 bg-muted rounded-full" />
+            <div className="mb-12 flex items-center justify-center py-12">
+              <LottieLoader size="lg" />
             </div>
           }>
             <StatsOverview challenges={challenges} />
           </Suspense>
 
           <Suspense fallback={
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square rounded-xl bg-muted animate-pulse"
-                />
-              ))}
+            <div className="flex items-center justify-center py-12">
+              <LottieLoader size="lg" />
             </div>
           }>
             <ChallengesList 

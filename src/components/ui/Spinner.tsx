@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "~/utils/cn";
+import { LottieLoader } from "./LottieLoader";
 
 interface SpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -8,26 +9,14 @@ interface SpinnerProps {
   className?: string;
 }
 
-const sizeStyles = {
-  sm: "h-4 w-4 border-2",
-  md: "h-8 w-8 border-3",
-  lg: "h-12 w-12 border-4",
-};
-
-const variantStyles = {
-  default: "border-foreground/20 border-t-foreground",
-  primary: "border-primary/20 border-t-primary",
-};
-
 export function Spinner({ size = "md", variant = "default", className }: SpinnerProps) {
   return (
-    <div
+    <LottieLoader 
+      size={size} 
       className={cn(
-        "animate-spin rounded-full",
-        sizeStyles[size],
-        variantStyles[variant],
+        variant === "primary" && "text-primary",
         className
-      )}
+      )} 
     />
   );
 }

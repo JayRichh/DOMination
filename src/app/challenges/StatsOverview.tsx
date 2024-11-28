@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { getAllChallengeStates } from "~/utils/challengeState";
 import type { Challenge } from "~/types/challenge";
 import { Text } from "~/components/ui/Text";
+import { LottieLoader } from "~/components/ui/LottieLoader";
 
 export function StatsOverview({ challenges }: { challenges: Challenge[] }) {
   const [stats, setStats] = useState({
@@ -14,20 +15,37 @@ export function StatsOverview({ challenges }: { challenges: Challenge[] }) {
     totalChallenges: challenges.length,
     completionPercentage: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const states = getAllChallengeStates();
-    const completedChallenges = Object.values(states).filter(state => state.bestScore);
-    const scores = completedChallenges.map(c => c.bestScore?.combinedScore || 0);
-    
-    setStats({
-      completed: completedChallenges.length,
-      averageScore: scores.length ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0,
-      bestScore: scores.length ? Math.max(...scores) : 0,
-      totalChallenges: challenges.length,
-      completionPercentage: Number(((completedChallenges.length / challenges.length) * 100).toFixed(1))
-    });
+    const loadStats = async () => {
+      try {
+        const states = getAllChallengeStates();
+        const completedChallenges = Object.values(states).filter(state => state.bestScore);
+        const scores = completedChallenges.map(c => c.bestScore?.combinedScore || 0);
+        
+        setStats({
+          completed: completedChallenges.length,
+          averageScore: scores.length ? Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)) : 0,
+          bestScore: scores.length ? Math.max(...scores) : 0,
+          totalChallenges: challenges.length,
+          completionPercentage: Number(((completedChallenges.length / challenges.length) * 100).toFixed(1))
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadStats();
   }, [challenges]);
+
+  if (isLoading) {
+    return (
+      <div className="mb-12 flex items-center justify-center py-12">
+        <LottieLoader size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="mb-12">

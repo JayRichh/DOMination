@@ -7,6 +7,7 @@ import { PreviewPane } from "~/components/PreviewPane";
 import { ComparisonSlider } from "~/components/ComparisonSlider";
 import { ValidationMessage } from "~/components/ValidationMessage";
 import { ThemeToggle } from "~/components/ThemeToggle";
+import { LottieLoader } from "~/components/ui/LottieLoader";
 import type { Challenge, ChallengeScore } from "~/types/challenge";
 import { getChallengeState, updateChallengeWithScore, updateChallengeContent } from "~/utils/challengeState";
 import { generateChallengeScore } from "~/utils/scoring";
@@ -44,6 +45,7 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
   const [score, setScore] = useState<ChallengeScore | null>(null);
   const [mounted, setMounted] = useState(false);
   const [validation, setValidation] = useState<ValidationState | null>(null);
+  const [isGeneratingScore, setIsGeneratingScore] = useState(false);
   const userPreviewRef = useRef<HTMLDivElement>(null);
   const targetPreviewRef = useRef<HTMLDivElement>(null);
 
@@ -117,9 +119,11 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
     
     // Clear previous validation
     setValidation(null);
+    setIsGeneratingScore(true);
 
     // Validate submission
     if (!validateSubmission()) {
+      setIsGeneratingScore(false);
       return;
     }
 
@@ -163,6 +167,8 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
         message: err instanceof Error ? err.message : 'An error occurred while scoring your solution'
       });
       console.error('Score update error:', err);
+    } finally {
+      setIsGeneratingScore(false);
     }
   }, [userHtml, userCss, challenge.id, challenge.optimalCodeLength, validateSubmission]);
 
@@ -215,9 +221,19 @@ export function ChallengePage({ challenge }: ChallengePageProps) {
           )}
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-[#6B8AFF]/10 hover:bg-[#6B8AFF]/20 dark:bg-primary/10 dark:hover:bg-primary/20 text-[#6B8AFF] dark:text-primary transition-colors"
+            disabled={isGeneratingScore}
+            className="relative px-4 py-2 text-sm font-medium rounded-lg bg-[#6B8AFF]/10 hover:bg-[#6B8AFF]/20 dark:bg-primary/10 dark:hover:bg-primary/20 text-[#6B8AFF] dark:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Submit Solution
+            {isGeneratingScore ? (
+              <>
+                <span className="opacity-0">Submit Solution</span>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <LottieLoader size="sm" />
+                </div>
+              </>
+            ) : (
+              "Submit Solution"
+            )}
           </button>
           <ThemeToggle />
         </div>

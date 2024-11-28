@@ -1,11 +1,12 @@
 "use client";
 
 import { type VariantProps, cva } from "class-variance-authority";
-import { Loader2 } from "lucide-react";
 
 import { forwardRef } from "react";
 
 import { cn } from "~/utils/cn";
+
+import { LottieLoader } from "./LottieLoader";
 
 const buttonVariants = cva(
   [
@@ -154,7 +155,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading ? (
-          <Loader2 className={cn("animate-spin", iconSize)} />
+          <LottieLoader className={cn(iconSize)} />
         ) : (
           <>
             {leftIcon && (
