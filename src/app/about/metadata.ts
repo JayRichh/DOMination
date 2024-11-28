@@ -14,18 +14,23 @@ export async function generateMetadata(
   }
 
   // Get parent metadata (allows extending it)
-  const previousImages = (await parent).openGraph?.images || [];
+  const parentMetadata = await parent;
+  const previousImages = parentMetadata.openGraph?.images || [];
+
+  const title = "About | DOMination";
+  const description = "Learn about DOMination - Master CSS through creative challenges and interactive learning";
+  const editorImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/screenshots/editor.png`;
 
   return {
-    title: "About", // Will be templated to "About | DOMination"
-    description: "Learn about DOMination - Master CSS through creative challenges and interactive learning",
+    title,
+    description,
     openGraph: {
-      title: "About DOMination",
+      title,
       description: "Master CSS by recreating targets with code. Engage in fun and interactive challenges to elevate your CSS skills.",
-      url: new URL("/about", process.env.NEXT_PUBLIC_BASE_URL).toString(),
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/about`,
       images: [
         {
-          url: new URL("/screenshots/editor.png", process.env.NEXT_PUBLIC_BASE_URL).toString(),
+          url: editorImageUrl,
           width: 1200,
           height: 630,
           alt: "DOMination Editor Interface"
@@ -35,9 +40,9 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: "About DOMination",
-      description: "Master CSS through creative challenges and interactive learning",
-      images: [new URL("/screenshots/editor.png", process.env.NEXT_PUBLIC_BASE_URL).toString()]
+      title,
+      description,
+      images: [editorImageUrl]
     }
   };
 }

@@ -15,6 +15,7 @@ export async function generateMetadata(
 
   // Ensure URL is properly formatted
   const metadataBaseUrl = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
+  const homeImageUrl = `${metadataBaseUrl}/screenshots/home.png`;
 
   return {
     metadataBase: new URL(metadataBaseUrl),
@@ -41,7 +42,7 @@ export async function generateMetadata(
       description: 'Master CSS by recreating targets with code. Engage in fun and interactive challenges to elevate your CSS skills.',
       images: [
         {
-          url: '/screenshots/home.png',
+          url: homeImageUrl,
           width: 1200,
           height: 630,
           alt: 'DOMination',
@@ -52,7 +53,7 @@ export async function generateMetadata(
       card: 'summary_large_image',
       title: 'DOMination - Test Your CSS Skills',
       description: 'Master CSS by recreating targets with code. Engage in fun and interactive challenges.',
-      images: ['/screenshots/home.png'],
+      images: [homeImageUrl],
       creator: '@cssbattle',
     },
     icons: {

@@ -14,18 +14,23 @@ export async function generateMetadata(
   }
 
   // Get parent metadata (allows extending it)
-  const previousImages = (await parent).openGraph?.images || [];
+  const parentMetadata = await parent;
+  const previousImages = parentMetadata.openGraph?.images || [];
+
+  const title = "Statistics | DOMination";
+  const description = "Track your DOMination progress with detailed statistics, performance metrics, and visual analytics";
+  const statsImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/screenshots/stats.png`;
 
   return {
-    title: "Statistics", // Will be templated to "Statistics | DOMination"
-    description: "Track your DOMination progress with detailed statistics, performance metrics, and visual analytics",
+    title,
+    description,
     openGraph: {
-      title: "DOMination Statistics",
-      description: "View your DOMination performance metrics, challenge completion stats, and progress over time",
-      url: new URL("/stats", process.env.NEXT_PUBLIC_BASE_URL).toString(),
+      title,
+      description,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/stats`,
       images: [
         {
-          url: new URL("/screenshots/stats.png", process.env.NEXT_PUBLIC_BASE_URL).toString(),
+          url: statsImageUrl,
           width: 1200,
           height: 630,
           alt: "DOMination Statistics Dashboard"
@@ -35,9 +40,9 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: "DOMination Statistics",
-      description: "Track your DOMination progress with detailed statistics and analytics",
-      images: [new URL("/screenshots/stats.png", process.env.NEXT_PUBLIC_BASE_URL).toString()]
+      title,
+      description,
+      images: [statsImageUrl]
     }
   };
 }

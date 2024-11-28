@@ -14,30 +14,47 @@ export async function generateMetadata(
     throw new Error('NEXT_PUBLIC_BASE_URL environment variable is required');
   }
 
-  // Get the challenge data
-  const challenge = challenges.find(c => c.id === params.id);
-
   // Get parent metadata (allows extending it)
-  const previousImages = (await parent).openGraph?.images || [];
+  const parentMetadata = await parent;
+  const previousImages = parentMetadata.openGraph?.images || [];
+
+  // Get the challenge data - wrap in Promise to properly handle async context
+  const challenge = await Promise.resolve(challenges.find(c => c.id === params.id));
 
   if (!challenge) {
     return {
-      title: "Challenge Not Found", // Will be templated to "Challenge Not Found | DOMination"
+      title: "Challenge Not Found",
       description: "The requested challenge could not be found.",
+      openGraph: {
+        title: "Challenge Not Found | DOMination",
+        description: "The requested challenge could not be found.",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/challenges/${params.id}`,
+        images: previousImages
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Challenge Not Found | DOMination",
+        description: "The requested challenge could not be found.",
+        images: previousImages
+      }
     };
   }
 
+  const title = `${challenge.title} | CSS Challenge`;
+  const description = `Test your CSS skills with the ${challenge.title} challenge - ${challenge.description}`;
+  const challengeImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/screenshots/challenges/${challenge.id}.png`;
+
   return {
-    title: challenge.title, // Will be templated to "{challenge.title} | DOMination"
-    description: challenge.description,
+    title,
+    description,
     openGraph: {
-      title: challenge.title,
-      description: challenge.description,
+      title,
+      description,
       type: "website",
-      url: new URL(`/challenges/${params.id}`, process.env.NEXT_PUBLIC_BASE_URL).toString(),
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/challenges/${params.id}`,
       images: [
         {
-          url: new URL(`/screenshots/challenges/${challenge.id}.png`, process.env.NEXT_PUBLIC_BASE_URL).toString(),
+          url: challengeImageUrl,
           width: 1200,
           height: 630,
           alt: challenge.title,
@@ -47,9 +64,9 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: challenge.title,
-      description: challenge.description,
-      images: [new URL(`/screenshots/challenges/${challenge.id}.png`, process.env.NEXT_PUBLIC_BASE_URL).toString()]
+      title,
+      description,
+      images: [challengeImageUrl]
     },
   };
 }

@@ -14,18 +14,23 @@ export async function generateMetadata(
   }
 
   // Get parent metadata (allows extending it)
-  const previousImages = (await parent).openGraph?.images || [];
+  const parentMetadata = await parent;
+  const previousImages = parentMetadata.openGraph?.images || [];
+
+  const title = "Challenges | DOMination";
+  const description = "Test your CSS skills with our collection of creative challenges. From beginner to expert level, improve your CSS mastery through hands-on practice.";
+  const challengesImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/screenshots/challenges.png`;
 
   return {
-    title: "Challenges", // Will be templated to "Challenges | DOMination"
-    description: "Test your CSS skills with our collection of creative challenges. From beginner to expert level, improve your CSS mastery through hands-on practice.",
+    title,
+    description,
     openGraph: {
-      title: "DOMination Challenges",
-      description: "Explore a diverse collection of CSS challenges designed to test and improve your CSS skills through practical, hands-on exercises.",
-      url: new URL("/challenges", process.env.NEXT_PUBLIC_BASE_URL).toString(),
+      title,
+      description,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/challenges`,
       images: [
         {
-          url: new URL("/screenshots/challenges.png", process.env.NEXT_PUBLIC_BASE_URL).toString(),
+          url: challengesImageUrl,
           width: 1200,
           height: 630,
           alt: "DOMination Challenges"
@@ -35,9 +40,9 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: "DOMination Challenges",
-      description: "Master CSS through interactive challenges and real-time feedback",
-      images: [new URL("/screenshots/challenges.png", process.env.NEXT_PUBLIC_BASE_URL).toString()]
+      title,
+      description,
+      images: [challengesImageUrl]
     }
   };
 }
