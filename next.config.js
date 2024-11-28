@@ -12,7 +12,8 @@ const nextConfig = {
   images: {
     domains: [
       'localhost',
-      process.env.VERCEL_URL ? new URL(process.env.VERCEL_URL).hostname : '',
+      'domination.vercel.app',
+      process.env.VERCEL_URL ? process.env.VERCEL_URL.split(':')[0] : '',
     ].filter(Boolean),
     formats: ['image/avif', 'image/webp'],
   },

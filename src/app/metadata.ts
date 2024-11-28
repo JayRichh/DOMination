@@ -9,12 +9,15 @@ export async function generateMetadata(
   _props: Props,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  if (!process.env.NEXT_PUBLIC_BASE_URL) {
-    throw new Error('NEXT_PUBLIC_BASE_URL environment variable is required');
-  }
+  // Handle URL construction safely
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+  // Ensure URL is properly formatted
+  const metadataBaseUrl = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL),
+    metadataBase: new URL(metadataBaseUrl),
     title: {
       template: '%s | DOMination',
       default: 'DOMination - Test Your CSS Skills',
@@ -38,7 +41,7 @@ export async function generateMetadata(
       description: 'Master CSS by recreating targets with code. Engage in fun and interactive challenges to elevate your CSS skills.',
       images: [
         {
-          url: new URL('/screenshots/home.png', process.env.NEXT_PUBLIC_BASE_URL).toString(),
+          url: '/screenshots/home.png',
           width: 1200,
           height: 630,
           alt: 'DOMination',
@@ -49,7 +52,7 @@ export async function generateMetadata(
       card: 'summary_large_image',
       title: 'DOMination - Test Your CSS Skills',
       description: 'Master CSS by recreating targets with code. Engage in fun and interactive challenges.',
-      images: [new URL('/screenshots/home.png', process.env.NEXT_PUBLIC_BASE_URL).toString()],
+      images: ['/screenshots/home.png'],
       creator: '@cssbattle',
     },
     icons: {
