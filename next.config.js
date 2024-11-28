@@ -20,13 +20,23 @@ const nextConfig = {
 
   // Metadata configuration
   experimental: {
-    typedRoutes: true,
-    optimizePackageImports: ['@/components'],
+    typedRoutes: false,
+    optimizePackageImports: ['components']
   },
 
   // Webpack configuration
   webpack: (config) => {
     config.externals = [...(config.externals || []), { canvas: "canvas" }];
+    
+    // Exclude examples directory
+    if (config.module && config.module.rules) {
+      config.module.rules.push({
+        test: /\.(js|jsx|ts|tsx)$/,
+        exclude: /src\/app\/examples/,
+        use: []
+      });
+    }
+    
     return config;
   },
 
