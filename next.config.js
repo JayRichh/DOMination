@@ -5,7 +5,7 @@ const nextConfig = {
   
   // Environment Variables Validation
   env: {
-    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || "https://domination.vercel.app",
   },
 
   // Image configuration for OpenGraph

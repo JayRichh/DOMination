@@ -1,8 +1,8 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
 type Props = {
-  params: {}
-  searchParams: { [key: string]: string | string[] | undefined }
+  params: Promise<{}>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export async function generateMetadata(
@@ -10,8 +10,7 @@ export async function generateMetadata(
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   // Handle URL construction safely
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://domination.vercel.app';
 
   // Ensure URL is properly formatted
   const metadataBaseUrl = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
@@ -19,6 +18,7 @@ export async function generateMetadata(
 
   return {
     metadataBase: new URL(metadataBaseUrl),
+    alternates: { canonical: '/' },
     title: {
       template: '%s | DOMination',
       default: 'DOMination - Test Your CSS Skills',
