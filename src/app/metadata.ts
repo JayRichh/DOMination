@@ -14,7 +14,7 @@ export async function generateMetadata(
 
   // Ensure URL is properly formatted
   const metadataBaseUrl = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
-  const homeImageUrl = `${metadataBaseUrl}/screenshots/home.png`;
+  const homeImageUrl = `${metadataBaseUrl}/screenshots/challenges.png`;
 
   return {
     metadataBase: new URL(metadataBaseUrl),
